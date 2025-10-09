@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 class DatabaseSeeder extends Seeder
@@ -16,10 +17,9 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
         $this->call([
-            SupplierSeeder::class
+            SupplierSeeder::class,
+            RolesAndPermissionsSeeder::class,
         ]);
-        $roleSuperAdmin = Role::create(['name' => 'Super-Admin']);
-
 
         $superAdminUser = User::factory()->create([
             'name' => 'Super Admin',
@@ -27,6 +27,16 @@ class DatabaseSeeder extends Seeder
             'username' => 'superadmin',
         ]);
 
+        $adminUser = User::factory()->create([
+            'name' => 'Admin User',
+            'email' => 'admin@example.com',
+            'username' => 'admin',
+        ]);
+
+        $roleSuperAdmin = Role::findByName('Super Admin', 'sanctum');
+        $roleAdmin = Role::findByName('Admin', 'sanctum');
+
         $superAdminUser->assignRole($roleSuperAdmin);
+        $adminUser->assignRole($roleAdmin);
     }
 }

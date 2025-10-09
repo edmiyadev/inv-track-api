@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Interfaces\AuthServiceInterface;
 use App\Interfaces\SupplierServiceInterface;
+use App\Models\Supplier;
+use App\Policies\SupplierPolicy;
 use App\Services\AuthService;
 use App\Services\SupplierService;
 use Illuminate\Support\Facades\Gate;
@@ -25,6 +27,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Gate::policy(Supplier::class, SupplierPolicy::class);
+
         Gate::before(function ($user, $ability) {
             return $user->hasRole('Super Admin') ? true : null;
         });

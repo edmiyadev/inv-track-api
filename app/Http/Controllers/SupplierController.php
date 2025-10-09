@@ -6,9 +6,12 @@ use App\Http\Requests\StoreSupplierRequest;
 use App\Http\Requests\UpdateSupplierRequest;
 use App\Interfaces\SupplierServiceInterface;
 use App\Models\Supplier;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class SupplierController extends Controller
 {
+    use AuthorizesRequests;
+
     protected readonly SupplierServiceInterface $supplierService;
     public function __construct(SupplierServiceInterface $supplierService)
     {
@@ -20,6 +23,8 @@ class SupplierController extends Controller
      */
     public function index()
     {
+        $this->authorize('viewAny', Supplier::class);
+
         $suppliers = $this->supplierService->getAllSuppliers();
         return response([
             "status" => 'success',
@@ -33,6 +38,8 @@ class SupplierController extends Controller
      */
     public function store(StoreSupplierRequest $request)
     {
+        $this->authorize('create', Supplier::class);
+
         $supplier = $this->supplierService->createSupplier($request->validated());
 
         if (!$supplier) {
@@ -55,6 +62,7 @@ class SupplierController extends Controller
     public function show(int|string $supplierId)
     {
         $supplier = $this->supplierService->getSupplierById($supplierId);
+        $this->authorize('view', $supplier);
 
         if (!$supplier) {
             return response([
@@ -75,7 +83,9 @@ class SupplierController extends Controller
      */
     public function update(UpdateSupplierRequest $request, int|string $supplierId)
     {
+
         $supplier = $this->supplierService->getSupplierById($supplierId);
+        $this->authorize('update', $supplier);
 
         if (!$supplier) {
             return response([
@@ -105,6 +115,7 @@ class SupplierController extends Controller
     public function destroy(int|string $supplierId)
     {
         $supplier = $this->supplierService->getSupplierById($supplierId);
+        $this->authorize('delete', $supplier);
 
         if (!$supplier) {
             return response([

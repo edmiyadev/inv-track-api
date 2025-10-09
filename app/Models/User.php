@@ -13,8 +13,9 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasApiTokens,  HasRoles;
+    use HasFactory, Notifiable, HasApiTokens, HasRoles;
 
+    protected $guard_name = 'sanctum';
     /**
      * The attributes that are mass assignable.
      *
