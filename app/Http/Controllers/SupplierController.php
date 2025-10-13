@@ -6,11 +6,11 @@ use App\Http\Requests\StoreSupplierRequest;
 use App\Http\Requests\UpdateSupplierRequest;
 use App\Interfaces\SupplierServiceInterface;
 use App\Models\Supplier;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use App\Traits\Authorizes;
 
 class SupplierController extends Controller
 {
-    use AuthorizesRequests;
+    use Authorizes;
 
     protected readonly SupplierServiceInterface $supplierService;
     public function __construct(SupplierServiceInterface $supplierService)
