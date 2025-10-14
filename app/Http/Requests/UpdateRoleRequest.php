@@ -23,6 +23,8 @@ class UpdateRoleRequest extends FormRequest
     {
         return [
             'name' => 'string|min:2|max:100|unique:roles,name,' . $this->route('role'),
+            'permissions' => 'array',
+            'permissions.*' => 'string|exists:permissions,name',
         ];
     }
 }

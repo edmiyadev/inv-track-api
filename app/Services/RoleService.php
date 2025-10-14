@@ -3,8 +3,6 @@
 namespace App\Services;
 
 use App\Interfaces\RoleServiceInterface;
-use Illuminate\Support\Collection;
-use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 class RoleService implements RoleServiceInterface
@@ -21,7 +19,10 @@ class RoleService implements RoleServiceInterface
 
     public function createRole(array $data)
     {
-        return Role::create(['name' => $data['name'], 'guard_name' => 'sanctum']);
+        $role = Role::create(['name' => $data['name'], 'guard_name' => 'sanctum']);
+        $role->syncPermissions($data['permissions']);
+
+        return $role;
     }
 
     public function updateRole(Role $role, array $data)
@@ -30,6 +31,8 @@ class RoleService implements RoleServiceInterface
             return false;
         }
 
+        $role->syncPermissions($data['permissions']);
+
         return $role->update($data);
     }
 
@@ -37,11 +40,4 @@ class RoleService implements RoleServiceInterface
     {
         return $role->delete();
     }
-
-    // public function syncPermissions(Role $role, Collection $permissions)
-    // {
-    //     rerun $role->syncPermissions($permissions);
-    // }
-
-    // public function revokePermissions(Permission $permission) {}
 }
