@@ -13,6 +13,7 @@ class SupplierController extends Controller
     use Authorizes;
 
     protected readonly SupplierServiceInterface $supplierService;
+
     public function __construct(SupplierServiceInterface $supplierService)
     {
         $this->supplierService = $supplierService;

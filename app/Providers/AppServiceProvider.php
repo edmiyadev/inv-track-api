@@ -3,10 +3,12 @@
 namespace App\Providers;
 
 use App\Interfaces\AuthServiceInterface;
+use App\Interfaces\RoleServiceInterface;
 use App\Interfaces\SupplierServiceInterface;
 use App\Models\Supplier;
 use App\Policies\SupplierPolicy;
 use App\Services\AuthService;
+use App\Services\RoleService;
 use App\Services\SupplierService;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -20,6 +22,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->bind(AuthServiceInterface::class, AuthService::class);
         $this->app->bind(SupplierServiceInterface::class, SupplierService::class);
+        $this->app->bind(RoleServiceInterface::class, RoleService::class);
     }
 
     /**
