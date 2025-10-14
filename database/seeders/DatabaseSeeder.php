@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RolesAndPermissionsSeeder::class,
             SupplierSeeder::class,
+            ProductCategorySeeder::class,
         ]);
 
         $superAdminUser = User::firstOrCreate(

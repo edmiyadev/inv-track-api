@@ -4,11 +4,13 @@ namespace App\Providers;
 
 use App\Interfaces\AuthServiceInterface;
 use App\Interfaces\PermissionServiceInterface;
+use App\Interfaces\ProductCategoryServiceInterface;
 use App\Interfaces\RoleServiceInterface;
 use App\Interfaces\SupplierServiceInterface;
 use App\Interfaces\UserServiceInterface;
 use App\Models\Supplier;
 use App\Policies\SupplierPolicy;
+use App\Services\ProductCategoryService;
 use App\Services\AuthService;
 use App\Services\PermissionService;
 use App\Services\RoleService;
@@ -29,6 +31,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(RoleServiceInterface::class, RoleService::class);
         $this->app->bind(PermissionServiceInterface::class, PermissionService::class);
         $this->app->bind(UserServiceInterface::class, UserService::class);
+        $this->app->bind(ProductCategoryServiceInterface::class, ProductCategoryService::class);
     }
 
     /**

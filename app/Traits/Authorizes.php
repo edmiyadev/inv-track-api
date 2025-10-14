@@ -8,8 +8,7 @@ trait Authorizes
 {
     public function authorize($ability, $arguments = [])
     {
-
-        if (!Gate::allows($ability, $arguments)) {
+        if ($arguments && !Gate::allows($ability, $arguments)) {
             abort(403, 'This action is unauthorized.');
         }
     }
