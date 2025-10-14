@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Enums\ActionEnum;
+use App\Enums\ModelPermissionEnum;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
@@ -17,20 +19,22 @@ class RolesAndPermissionsSeeder extends Seeder
 
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        $permissions = [
-            'suppliers.view',
-            'suppliers.viewAny',
-            'suppliers.create',
-            'suppliers.edit',
-            'suppliers.delete',
-        ];
+        $actions = ActionEnum::values();
+        $models = ModelPermissionEnum::values();
+        $permissions = [];
 
-        foreach ($permissions as $permission) {
-            Permission::create(['name' => $permission, 'guard_name' => 'sanctum']);
+        foreach ($models as $model) {
+            foreach ($actions as $action) {
+                $permissions[] = "{$model}.{$action}";
+            }
         }
 
-        Role::create(['name' => 'Super Admin', 'guard_name' => 'sanctum']);
-        $roleAdmin = Role::create(['name' => 'Admin', 'guard_name' => 'sanctum']);
+        foreach ($permissions as $permission) {
+            Permission::createOrFirst(['name' => $permission, 'guard_name' => 'sanctum']);
+        }
+
+        Role::createOrFirst(['name' => 'Super Admin', 'guard_name' => 'sanctum']);
+        $roleAdmin = Role::createOrFirst(['name' => 'Admin', 'guard_name' => 'sanctum']);
 
         $roleAdmin->givePermissionTo([
             'suppliers.view',

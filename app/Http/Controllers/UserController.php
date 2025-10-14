@@ -21,7 +21,7 @@ class UserController extends Controller
 
     public function index()
     {
-        // $this->authorize('viewAny', User::class);
+        $this->authorize('viewAny', User::class);
 
         $users = $this->userService->getAllUsers();
         return response([
@@ -36,7 +36,7 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request)
     {
-        // $this->authorize('create', User::class);
+        $this->authorize('create', User::class);
 
         $user = $this->userService->createUser($request->validated());
 
@@ -60,7 +60,7 @@ class UserController extends Controller
     public function show(int|string $userId)
     {
         $user = $this->userService->getUserById($userId);
-        // $this->authorize('view', $user);
+        $this->authorize('view', $user);
 
         if (!$user) {
             return response([
@@ -82,7 +82,7 @@ class UserController extends Controller
     public function update(UpdateUserRequest $request, int|string $userId)
     {
         $user = $this->userService->getUserById($userId);
-        // $this->authorize('update', $user);
+        $this->authorize('update', $user);
 
         if (!$user) {
             return response([
@@ -112,7 +112,7 @@ class UserController extends Controller
     public function destroy(int|string $userId)
     {
         $user = $this->userService->getUserById($userId);
-        // $this->authorize('delete', $user);
+        $this->authorize('delete', $user);
 
         if (!$user) {
             return response([

@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Permission;
+use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 
 class DatabaseSeeder extends Seeder
@@ -17,21 +17,29 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
         $this->call([
-            SupplierSeeder::class,
             RolesAndPermissionsSeeder::class,
+            SupplierSeeder::class,
         ]);
 
-        $superAdminUser = User::factory()->create([
-            'name' => 'Super Admin',
-            'email' => 'superadmin@example.com',
-            'username' => 'superadmin',
-        ]);
+        $superAdminUser = User::firstOrCreate(
+            [
+                'email' => 'superadmin@example.com'
+            ],
+            [
+                'name' => 'Super Admin',
+                'username' => 'superadmin',
+                'password' => Hash::make('password')
+            ]
+        );
 
-        $adminUser = User::factory()->create([
-            'name' => 'Admin User',
-            'email' => 'admin@example.com',
-            'username' => 'admin',
-        ]);
+        $adminUser = User::firstOrCreate(
+            ['email' => 'admin@example.com'],
+            [
+                'name' => 'Admin User',
+                'username' => 'admin',
+                'password' => Hash::make('password')
+            ]
+        );
 
         $roleSuperAdmin = Role::findByName('Super Admin', 'sanctum');
         $roleAdmin = Role::findByName('Admin', 'sanctum');
