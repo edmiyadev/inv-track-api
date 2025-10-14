@@ -5,6 +5,7 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProductCategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\StockMovementController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -21,16 +22,18 @@ Route::prefix('auth')->group(function () {
 });
 
 Route::middleware(['auth:sanctum'])->group(function () {
-    Route::apiResource('suppliers', SupplierController::class);
-
     Route::prefix('settings')->group(function () {
         Route::apiResource('users', UserController::class);
         Route::apiResource('roles', RoleController::class);
         Route::get('permissions', [PermissionController::class, 'index']);
     });
 
-    Route::prefix('products')->group(function () {
-        Route::apiResource('products', ProductController::class);
-        Route::apiResource('categories', ProductCategoryController::class);
+    Route::prefix('inventory')->group(function () {
+
+        Route::get('movements', [StockMovementController::class, 'index'])->except(['update', 'destroy']);
     });
+
+    Route::apiResource('suppliers', SupplierController::class);
+    Route::apiResource('products', ProductController::class);
+    Route::apiResource('categories', ProductCategoryController::class);
 });
