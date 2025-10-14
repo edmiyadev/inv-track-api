@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProductCategoryController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
@@ -29,6 +30,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
     Route::prefix('products')->group(function () {
+        Route::apiResource('products', ProductController::class);
         Route::apiResource('categories', ProductCategoryController::class);
     });
 });
