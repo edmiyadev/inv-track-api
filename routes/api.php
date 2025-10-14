@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SupplierController;
 use Illuminate\Http\Request;
@@ -21,6 +22,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::prefix('settings')->group(function () {
         Route::apiResource('roles', RoleController::class);
-        Route::post('roles/{role}/syncPermissions', [RoleController::class, 'syncPermissions']);
+        Route::get('permissions', [PermissionController::class, 'index']);
     });
 });
