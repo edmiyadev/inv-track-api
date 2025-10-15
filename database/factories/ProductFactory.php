@@ -21,8 +21,8 @@ class ProductFactory extends Factory
             'description' => $this->faker->sentence(),
             'price' => $this->faker->randomFloat(2, 1, 1000),
             'stock_quantity' => $this->faker->numberBetween(0, 100),
-            'product_category_id' => \App\Models\ProductCategory::factory(),
-            'supplier_id' => \App\Models\Supplier::factory(),
+            'product_category_id' => \App\Models\ProductCategory::inRandomOrder()->first()?->id,
+            'supplier_id' => \App\Models\Supplier::inRandomOrder()->first()?->id,
         ];
     }
 }

@@ -20,6 +20,8 @@ class DatabaseSeeder extends Seeder
             RolesAndPermissionsSeeder::class,
             SupplierSeeder::class,
             ProductCategorySeeder::class,
+            ProductSeeder::class,
+            WarehouseSeeder::class,
         ]);
 
         $superAdminUser = User::firstOrCreate(

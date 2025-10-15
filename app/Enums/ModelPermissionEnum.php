@@ -13,4 +13,5 @@ enum ModelPermissionEnum: string
     case SUPPLIER = 'suppliers';
     case PRODUCT_CATEGORY = 'product_categories';
     case PRODUCT = 'products';
+    case WAREHOUSE = 'warehouses';
 }

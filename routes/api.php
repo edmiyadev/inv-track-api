@@ -8,6 +8,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\StockMovementController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\WarehouseController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -30,10 +31,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::prefix('inventory')->group(function () {
 
-        Route::get('movements', [StockMovementController::class, 'index'])->except(['update', 'destroy']);
+        Route::apiResource('movements', StockMovementController::class)->except(['update', 'destroy']);
     });
 
     Route::apiResource('suppliers', SupplierController::class);
     Route::apiResource('products', ProductController::class);
     Route::apiResource('categories', ProductCategoryController::class);
+    Route::apiResource('warehouses', WarehouseController::class);
 });
