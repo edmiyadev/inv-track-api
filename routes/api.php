@@ -1,12 +1,12 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\InventoryMovementController;
 use App\Http\Controllers\InventoryStockController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProductCategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RoleController;
-use App\Http\Controllers\StockMovementController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WarehouseController;
@@ -32,7 +32,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::prefix('inventory')->group(function () {
         Route::apiResource('stocks', InventoryStockController::class)->only(['index', 'store']); //Todo: retire store if not needed
-        Route::apiResource('movements', StockMovementController::class)->except(['update', 'destroy']);
+        Route::apiResource('movements', InventoryMovementController::class)->only(['index', 'show']);
     });
 
     Route::apiResource('suppliers', SupplierController::class);
