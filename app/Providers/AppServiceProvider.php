@@ -8,6 +8,7 @@ use App\Interfaces\InventoryStockServiceInterface;
 use App\Interfaces\PermissionServiceInterface;
 use App\Interfaces\ProductCategoryServiceInterface;
 use App\Interfaces\ProductServiceInterface;
+use App\Interfaces\PurchaseServiceInterface;
 use App\Interfaces\RoleServiceInterface;
 use App\Interfaces\SupplierServiceInterface;
 use App\Interfaces\UserServiceInterface;
@@ -22,6 +23,7 @@ use App\Services\InventoryMovementService;
 use App\Services\InventoryStockService;
 use App\Services\PermissionService;
 use App\Services\ProductService;
+use App\Services\PurchaseService;
 use App\Services\RoleService;
 use App\Services\SupplierService;
 use App\Services\UserService;
@@ -46,6 +48,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(WarehouseServiceInterface::class, WarehouseService::class);
         $this->app->bind(InventoryStockServiceInterface::class, InventoryStockService::class);
         $this->app->bind(InventoryMovementServiceInterface::class, InventoryMovementService::class);
+        $this->app->bind(PurchaseServiceInterface::class, PurchaseService::class);
     }
 
     /**

@@ -6,6 +6,7 @@ use App\Http\Controllers\InventoryStockController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProductCategoryController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
@@ -35,6 +36,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::apiResource('movements', InventoryMovementController::class)->only(['index', 'show']);
     });
 
+    Route::apiResource('purchases', PurchaseController::class);
     Route::apiResource('suppliers', SupplierController::class);
     Route::apiResource('products', ProductController::class);
     Route::apiResource('categories', ProductCategoryController::class);
