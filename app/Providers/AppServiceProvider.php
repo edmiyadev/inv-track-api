@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Interfaces\AuthServiceInterface;
+use App\Interfaces\InventoryStockServiceInterface;
 use App\Interfaces\PermissionServiceInterface;
 use App\Interfaces\ProductCategoryServiceInterface;
 use App\Interfaces\ProductServiceInterface;
@@ -16,6 +17,7 @@ use App\Policies\SupplierPolicy;
 use App\Policies\WarehousePolicy;
 use App\Services\ProductCategoryService;
 use App\Services\AuthService;
+use App\Services\InventoryStockService;
 use App\Services\PermissionService;
 use App\Services\ProductService;
 use App\Services\RoleService;
@@ -40,6 +42,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(ProductCategoryServiceInterface::class, ProductCategoryService::class);
         $this->app->bind(ProductServiceInterface::class, ProductService::class);
         $this->app->bind(WarehouseServiceInterface::class, WarehouseService::class);
+        $this->app->bind(InventoryStockServiceInterface::class, InventoryStockService::class);
     }
 
     /**
