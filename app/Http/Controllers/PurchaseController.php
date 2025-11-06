@@ -29,8 +29,7 @@ class PurchaseController extends Controller
     public function store(StorePurchaseRequest $request)
     {
         $purchase = $this->purchaseService->createPurchase($request->validated());
-        
-        dd($purchase);
+
         if (!$purchase) {
             return response([
                 "status" => 'error',

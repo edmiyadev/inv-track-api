@@ -10,70 +10,116 @@ use Illuminate\Support\Facades\DB;
 
 class PurchaseService implements PurchaseServiceInterface
 {
-    public function __construct(private readonly Purchase $purchase)
-    {
-    }
-
     public function getAllPurchases()
     {
-        return $this->purchase->all();
+        return Purchase::with(["items"])->get();
     }
 
     public function getPurchaseById(int $id)
     {
-        return $this->purchase->find($id);
+        return Purchase::with(["items"])->find($id);
     }
-
 
     public function createPurchase(array $data)
     {
-        $purchase = new Purchase();
+        $items = $data["items"] ?? [];
+        $purchaseWithoutItems = Arr::except($data, ["items"]);
+        $newPurchase = null;
 
         try {
-            DB::transaction(function () use ($data) {
-                $items = $data['items'] ?? [];
-                $purchaseWithoutItems = Arr::except($data, ['items']);
-                $totalAmount = 0;
-                $newPurchase = $this->purchase::create([...$purchaseWithoutItems, 'total_amount' => 0]);
+            DB::transaction(function () use (
+                $purchaseWithoutItems,
+                $items,
+                &$newPurchase,
+            ) {
+                $newPurchase = Purchase::create([
+                    ...$purchaseWithoutItems,
+                    "total_amount" => 0,
+                ]);
 
                 $linesToInsert = [];
+                $totalAmount = 0;
+
                 foreach ($items as $item) {
-                    $subtotal = $item['quantity'] * $item['unit_price'];
+                    $subtotal = $item["quantity"] * $item["unit_price"];
                     $totalAmount += $subtotal;
 
-                    $linesToInsert[] = array_merge($item, [
-                        'purchase_id' => $newPurchase->id,
-                        'product_id' => $item['product_id'],
-                        'quantity' => $item['quantity'],
-                        'unit_price' => $item['unit_price'],
-                        'total_price' => $subtotal,
-                    ]);
+                    $linesToInsert[] = [
+                        "purchase_id" => $newPurchase->id,
+                        "product_id" => $item["product_id"],
+                        "quantity" => $item["quantity"],
+                        "unit_price" => $item["unit_price"],
+                        "total_price" => $subtotal,
+                    ];
                 }
+                $newPurchase->items()->insert($linesToInsert);
+                $newPurchase->update(["total_amount" => $totalAmount]);
 
-                PurchaseItem::insert($linesToInsert);
-
-                $newPurchase->update(attributes: ['total_amount' => $totalAmount]);
+                return $newPurchase->with("items");
             });
 
+            return $newPurchase?->toArray();
         } catch (\Throwable $th) {
             return false;
         }
-
-        return $newPurchase->with('items');
-
     }
-
-
 
     public function updatePurchase(Purchase $purchase, array $data)
     {
-
         if (!$data) {
             return false;
         }
 
-        $purchase->update($data);
-        return $purchase;
+        $items = $data["items"] ?? null;
+        $purchaseData = Arr::except($data, ["items"]);
+        $updatedPurchase = $purchase;
+
+        try {
+            $updatedPurchase = DB::transaction(function () use (
+                $purchase,
+                $purchaseData,
+                $items,
+            ) {
+                if (!empty($purchaseData)) {
+                    $purchase->update($purchaseData);
+                }
+
+                $totalAmount = $purchase->total_amount;
+
+                if (is_array($items)) {
+                    $purchase->items()->delete();
+
+                    $linesToInsert = [];
+                    $totalAmount = 0;
+
+                    foreach ($items as $item) {
+                        $quantity = $item["quantity"] ?? 0;
+                        $unitPrice = $item["unit_price"] ?? 0;
+                        $subtotal = $quantity * $unitPrice;
+                        $totalAmount += $subtotal;
+
+                        $linesToInsert[] = [
+                            "purchase_id" => $purchase->id,
+                            "product_id" => $item["product_id"],
+                            "quantity" => $quantity,
+                            "unit_price" => $unitPrice,
+                            "total_price" => $subtotal,
+                        ];
+                    }
+
+                    if (!empty($linesToInsert)) {
+                        $purchase->items()->insert($linesToInsert);
+                    }
+
+                    $purchase->update(["total_amount" => $totalAmount]);
+                }
+                return $purchase->with("items");
+            });
+
+            return $updatedPurchase;
+        } catch (\Throwable $th) {
+            return false;
+        }
     }
 
     public function deletePurchase(Purchase $purchase)
