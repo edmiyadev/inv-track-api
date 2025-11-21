@@ -22,10 +22,12 @@ class UpdateProductRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'sku' => 'sometimes|required|string|max:255|unique:products,sku,' . $this->route('product'),
             'name' => 'sometimes|required|string|max:255',
             'description' => 'sometimes|nullable|string|max:1000',
             'price' => 'sometimes|required|numeric|min:0',
             'stock_quantity' => 'sometimes|required|integer|min:0',
+            'reorder_point' => 'sometimes|nullable|integer|min:0',
             'product_category_id' => 'sometimes|required|exists:product_categories,id',
             'supplier_id' => 'sometimes|required|exists:suppliers,id',
         ];

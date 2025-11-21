@@ -9,7 +9,7 @@ class ProductService implements ProductServiceInterface
 {
     public function getAllProducts()
     {
-        return Product::all();
+        return Product::orderBy('created_at', 'desc')->paginate(request()->per_page ?? 10);
     }
     public function getProductById(int|string $id)
     {

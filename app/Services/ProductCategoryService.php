@@ -9,7 +9,7 @@ class ProductCategoryService implements ProductCategoryServiceInterface
 {
     public function getAllProductCategories()
     {
-        return ProductCategory::all();
+        return ProductCategory::orderBy('created_at', 'desc')->paginate(request()->per_page ?? 10);
     }
 
     public function getProductCategoryById(int|string $id)
