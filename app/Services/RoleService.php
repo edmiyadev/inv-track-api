@@ -14,7 +14,7 @@ class RoleService implements RoleServiceInterface
 
     public function getRoleById(int|string $id)
     {
-        return Role::find($id) ?? false;
+        return Role::with(['permissions', 'users'])->find($id) ?? false;
     }
 
     public function createRole(array $data)

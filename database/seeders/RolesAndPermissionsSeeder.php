@@ -38,6 +38,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
         $roleAdmin->givePermissionTo([
             'suppliers.view',
+            'suppliers.viewAny',
             'suppliers.create',
             'suppliers.edit',
             'suppliers.delete',
