@@ -9,7 +9,7 @@ class WarehouseService implements WarehouseServiceInterface
 {
     public function getAllWarehouses()
     {
-        return Warehouse::all();
+        return Warehouse::orderBy('created_at', 'desc')->paginate(request()->per_page ?? 10);
     }
     public function getWarehouseById(int|string $id)
     {
