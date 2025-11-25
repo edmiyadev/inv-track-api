@@ -9,12 +9,12 @@ class RoleService implements RoleServiceInterface
 {
     public function getAllRoles()
     {
-        return Role::with(['permissions', 'users'])->get();
+        return Role::where('name', '!=', 'Super Admin')->with(['permissions', 'users'])->get();
     }
 
     public function getRoleById(int|string $id)
     {
-        return Role::with(['permissions', 'users'])->find($id) ?? false;
+        return Role::where('name', '!=', 'Super Admin')->with(['permissions', 'users'])->find($id) ?? false;
     }
 
     public function createRole(array $data)

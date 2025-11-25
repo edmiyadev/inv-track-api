@@ -33,6 +33,8 @@ class RolesAndPermissionsSeeder extends Seeder
             Permission::createOrFirst(['name' => $permission, 'guard_name' => 'sanctum']);
         }
 
+        Permission::createOrFirst(['name' => 'users.syncRoles', 'guard_name' => 'sanctum']);
+
         Role::createOrFirst(['name' => 'Super Admin', 'guard_name' => 'sanctum']);
         $roleAdmin = Role::createOrFirst(['name' => 'Admin', 'guard_name' => 'sanctum']);
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\RolesRequest;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Interfaces\UserServiceInterface;
@@ -131,6 +132,41 @@ class UserController extends Controller
         return response([
             "status" => 'success',
             'message' => 'User deleted successfully'
+        ]);
+    }
+
+    public function syncRoles(RolesRequest $request, int|string $userId)
+    {
+        $user = $this->userService->getUserById($userId);
+
+        if (empty($request->roles)) {
+            return response([
+                "status" => 'success',
+                'message' => 'Roles updated successfully (no roles provided)'
+            ], 200);
+        }
+
+        $this->authorize('syncRoles', $request->validated());
+
+        if (!$user) {
+            return response([
+                "status" => 'error',
+                'message' => 'User not found'
+            ], 404);
+        }
+
+        $userUpdated = $this->userService->syncRoles($user, $request->validated());
+
+        if (!$userUpdated) {
+            return response([
+                "status" => 'error',
+                'message' => 'Error updating user roles'
+            ], 500);
+        }
+
+        return response([
+            "status" => 'success',
+            'message' => 'User roles updated successfully'
         ]);
     }
 }

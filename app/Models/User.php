@@ -50,4 +50,11 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function scopeWithoutSuperAdmin($query)
+    {
+        return $query->whereDoesntHave('roles', function ($q) {
+            $q->where('name', 'Super Admin');
+        });
+    }
 }

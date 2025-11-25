@@ -27,6 +27,7 @@ Route::prefix('auth')->group(function () {
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::prefix('settings')->group(function () {
         Route::apiResource('users', UserController::class);
+        Route::patch('users/{user}/roles', [UserController::class, 'syncRoles']);
         Route::apiResource('roles', RoleController::class);
         Route::get('permissions', [PermissionController::class, 'index']);
     });

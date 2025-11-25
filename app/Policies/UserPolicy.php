@@ -49,7 +49,7 @@ class UserPolicy
     public function delete(User $user, User $model): bool|Response
     {
         if ($model->hasRole('Super Admin')) {
-            return Response::deny('This action is unauthorized.');
+            return false;
         }
 
         return $user->can('users.delete');
@@ -69,5 +69,14 @@ class UserPolicy
     public function forceDelete(User $user, User $model): bool
     {
         return false;
+    }
+
+    public function syncRoles(User $user, array $roles): bool
+    {
+        if (in_array('Super Admin', $roles)) {
+            return false;
+        }
+
+        return $user->can('users.syncRoles');
     }
 }
