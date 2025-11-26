@@ -33,8 +33,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
     Route::prefix('inventory')->group(function () {
-        Route::apiResource('stocks', InventoryStockController::class)->only(['index', 'store']); //Todo: retire store if not needed
-        Route::apiResource('movements', InventoryMovementController::class)->only(['index', 'show']);
+        Route::get('stocks', [InventoryStockController::class, 'index']);
+        Route::post('adjustments', [InventoryStockController::class, 'store']);
+        Route::apiResource('ledger', InventoryMovementController::class)->only(['index', 'show']);
     });
 
     Route::apiResource('purchases', PurchaseController::class);

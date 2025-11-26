@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\DB;
 
 class PurchaseService implements PurchaseServiceInterface
 {
+    public function __construct(private readonly InventoryMovementService $inventoryMovementService) {}
+
     public function getAllPurchases()
     {
         return Purchase::with(["items"])->get();
@@ -54,6 +56,13 @@ class PurchaseService implements PurchaseServiceInterface
                 }
                 $newPurchase->items()->insert($linesToInsert);
                 $newPurchase->update(["total_amount" => $totalAmount]);
+
+
+                $movement = $this->inventoryMovementService->createMovement([
+                    "movement_type" => "in",
+                    // "origin_warehouse_id" => $data["warehouse_id"],  //Todo implement warehouse_id in products
+                    "items" => $items,
+                ]);
 
                 return $newPurchase->with("items");
             });

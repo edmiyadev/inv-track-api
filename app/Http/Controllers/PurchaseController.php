@@ -9,9 +9,7 @@ use App\Models\Purchase;
 
 class PurchaseController extends Controller
 {
-    public function __construct(private readonly PurchaseServiceInterface $purchaseService)
-    {
-    }
+    public function __construct(private readonly PurchaseServiceInterface $purchaseService) {}
 
     public function index()
     {

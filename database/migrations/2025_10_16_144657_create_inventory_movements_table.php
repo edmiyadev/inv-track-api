@@ -13,8 +13,8 @@ return new class extends Migration {
         Schema::create('inventory_movements', function (Blueprint $table) {
             $table->id();
             $table->enum('movement_type', ['in', 'out', 'transfer', 'adjustment']);
-            $table->foreignId('origin_warehouse_id')->constrained('warehouses')->onDelete('cascade');
-            $table->foreignId('destination_warehouse_id')->constrained('warehouses')->onDelete('cascade');
+            $table->foreignId('origin_warehouse_id')->nullable()->constrained('warehouses')->onDelete('cascade');
+            $table->foreignId('destination_warehouse_id')->nullable()->constrained('warehouses')->onDelete('cascade');
             $table->text('notes')->nullable();
             $table->timestamps();
         });
