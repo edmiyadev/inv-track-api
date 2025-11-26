@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
             $table->foreignId('warehouse_id')->constrained('warehouses')->onDelete('cascade');
             $table->integer('quantity')->default(0);
+            $table->integer('reorder_point')->default(10);
             $table->unique(['product_id', 'warehouse_id']);
             $table->timestamps();
         });

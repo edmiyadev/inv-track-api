@@ -7,7 +7,9 @@ use App\Models\InventoryStock;
 
 class InventoryStockService implements InventoryStockServiceInterface
 {
-    public function __construct(private readonly InventoryStock $inventoryStock) {}
+    public function __construct(
+        private readonly InventoryStock $inventoryStock
+    ) {}
 
     public function adjustStock(int $productId, int $quantity, string $movementType, array $data): void
     {
@@ -20,14 +22,19 @@ class InventoryStockService implements InventoryStockServiceInterface
                 $this->decrementStock($data['origin_warehouse_id'], $productId, $quantity);
                 break;
 
-            // case 'transfer':
-            //     $this->decrementStock($data['origin_warehouse_id'], $productId, $quantity);
-            //     $this->incrementStock($data['destination_warehouse_id'], $productId, $quantity);
-            //     break;
+            case 'transfer':
+                $this->decrementStock($data['origin_warehouse_id'], $productId, $quantity);
+                $this->incrementStock($data['destination_warehouse_id'], $productId, $quantity);
+                break;
 
-            // case 'adjustment':
-            //     $this->incrementStock($data['origin_warehouse_id'], $productId, $quantity);
-            //     break;
+            case 'adjustment':
+                // Para ajustes, permitimos ajuste positivo o negativo
+                if ($quantity >= 0) {
+                    $this->incrementStock($data['destination_warehouse_id'], $productId, abs($quantity));
+                } else {
+                    $this->decrementStock($data['destination_warehouse_id'], $productId, abs($quantity));
+                }
+                break;
 
             default:
                 throw new \InvalidArgumentException("type movement not found: $movementType");
@@ -49,31 +56,13 @@ class InventoryStockService implements InventoryStockServiceInterface
         return $query->get()->toArray();
     }
 
-    // private function updateStockLevels(int $productId, int $quantity, string $movementType, array $data)
-    // {
-    //     if ($movementType === 'in') {
-    //         $this->incrementStock($data['destination_warehouse_id'], $productId, $quantity);
-    //     } elseif ($movementType === 'out') {
-    //         $this->decrementStock($data['origin_warehouse_id'], $productId, $quantity);
-    //     } elseif ($movementType === 'transfer') {
-    //         $this->decrementStock($data['origin_warehouse_id'], $productId, $quantity);
-    //         $this->incrementStock($data['destination_warehouse_id'], $productId, $quantity);
-    //     } elseif ($movementType === 'adjustment') {
-    //         // Assuming adjustment applies to origin_warehouse_id
-    //         // If quantity is positive, it adds. If negative (if allowed), it subtracts.
-    //         // For now, we treat it as an absolute addition to origin.
-    //         // Real-world adjustments might need more nuance (e.g. "set to X" vs "add X").
-    //         $this->incrementStock($data['origin_warehouse_id'], $productId, $quantity);
-    //     }
-    // }
-
     private function incrementStock(int $warehouseId, int $productId, int $quantity)
     {
         $stock = InventoryStock::firstOrCreate(
             ['warehouse_id' => $warehouseId, 'product_id' => $productId],
-            ['quantity' => 0]
+            ['quantity' => 0, 'reorder_point' => 10]
         );
-        dd($stock);
+
         $stock->increment('quantity', $quantity);
     }
 
@@ -81,8 +70,62 @@ class InventoryStockService implements InventoryStockServiceInterface
     {
         $stock = InventoryStock::firstOrCreate(
             ['warehouse_id' => $warehouseId, 'product_id' => $productId],
-            ['quantity' => 0]
+            ['quantity' => 0, 'reorder_point' => 10]
         );
+        
+        // Validar que no quede negativo
+        if ($stock->quantity < $quantity) {
+            throw new \Exception("Insufficient stock. Available: {$stock->quantity}, Requested: {$quantity}");
+        }
+        
         $stock->decrement('quantity', $quantity);
+    }
+
+    public function setReorderPoint(int $warehouseId, int $productId, int $reorderPoint): InventoryStock
+    {
+        return InventoryStock::updateOrCreate(
+            ['warehouse_id' => $warehouseId, 'product_id' => $productId],
+            ['reorder_point' => $reorderPoint]
+        );
+    }
+
+    public function getStockByWarehouse(int $warehouseId): array
+    {
+        return InventoryStock::where('warehouse_id', $warehouseId)
+            ->with('product')
+            ->get()
+            ->map(fn($stock) => [
+                'product_id' => $stock->product_id,
+                'product_name' => $stock->product->name,
+                'product_sku' => $stock->product->sku,
+                'quantity' => $stock->quantity,
+                'reorder_point' => $stock->reorder_point,
+                'needs_reorder' => $stock->quantity <= $stock->reorder_point,
+                'status' => $stock->quantity <= $stock->reorder_point ? 'low_stock' : 'ok'
+            ])
+            ->toArray();
+    }
+
+    public function getProductsNeedingReorder(?int $warehouseId = null): array
+    {
+        $query = InventoryStock::whereRaw('quantity <= reorder_point')
+            ->with(['product', 'warehouse']);
+
+        if ($warehouseId) {
+            $query->where('warehouse_id', $warehouseId);
+        }
+
+        return $query->get()
+            ->map(fn($stock) => [
+                'product_id' => $stock->product_id,
+                'product_name' => $stock->product->name,
+                'product_sku' => $stock->product->sku,
+                'warehouse_id' => $stock->warehouse_id,
+                'warehouse_name' => $stock->warehouse->name,
+                'quantity' => $stock->quantity,
+                'reorder_point' => $stock->reorder_point,
+                'deficit' => $stock->reorder_point - $stock->quantity
+            ])
+            ->toArray();
     }
 }

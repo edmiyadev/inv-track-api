@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Warehouse extends Model
 {
@@ -17,4 +18,9 @@ class Warehouse extends Model
         'descripcion',
         'is_active'
     ];
+
+    public function inventoryStocks(): HasMany
+    {
+        return $this->hasMany(InventoryStock::class);
+    }
 }

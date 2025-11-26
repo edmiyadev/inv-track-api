@@ -11,6 +11,7 @@ class InventoryStock extends Model
         'product_id',
         'warehouse_id',
         'quantity',
+        'reorder_point',
     ];
 
     public function product(): BelongsTo

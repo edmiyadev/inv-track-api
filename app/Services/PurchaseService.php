@@ -57,10 +57,9 @@ class PurchaseService implements PurchaseServiceInterface
                 $newPurchase->items()->insert($linesToInsert);
                 $newPurchase->update(["total_amount" => $totalAmount]);
 
-
-                $movement = $this->inventoryMovementService->createMovement([
+                $this->inventoryMovementService->createMovement([
                     "movement_type" => "in",
-                    // "origin_warehouse_id" => $data["warehouse_id"],  //Todo implement warehouse_id in products
+                    "destination_warehouse_id" => $newPurchase["warehouse_id"] ?? null,
                     "items" => $items,
                 ]);
 

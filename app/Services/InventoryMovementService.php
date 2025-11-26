@@ -15,11 +15,26 @@ class InventoryMovementService implements InventoryMovementServiceInterface
         private readonly InventoryStockService $inventoryStockService,
     ) {}
 
+    /**
+     * Create a new inventory movement
+     * 
+     * This is the ONLY way to modify inventory_stocks through movements.
+     * Flow: 
+     * 1. Creates InventoryMovement record (audit trail)
+     * 2. Creates InventoryMovementItem records (details)
+     * 3. Calls InventoryStockService to update actual stock levels
+     * 
+     * @param array $data Movement data (type, warehouses, items)
+     * @return inventoryMovement
+     * @throws \Exception If transaction fails or stock validation fails
+     */
     public function createMovement(array $data)
     {
-
         try {
-            DB::transaction(function () use ($data) {
+            $movement = null;
+
+            DB::transaction(function () use ($data, &$movement) {
+                // Step 1: Create movement record (audit trail)
                 $movement = $this->inventoryMovement->create([
                     'movement_type' => $data['movement_type'],
                     'origin_warehouse_id' => $data['origin_warehouse_id'] ?? null,
@@ -27,9 +42,9 @@ class InventoryMovementService implements InventoryMovementServiceInterface
                     'notes' => $data['notes'] ?? null,
                 ]);
 
-
+                // Step 2: Create movement items and update stock
                 foreach ($data['items'] as $item) {
-                    $movementItem = $this->inventoryMovementItem->create([
+                    $this->inventoryMovementItem->create([
                         'inventory_movement_id' => $movement->id,
                         'product_id' => $item['product_id'],
                         'quantity' => $item['quantity'],
@@ -37,10 +52,17 @@ class InventoryMovementService implements InventoryMovementServiceInterface
                         'total_cost' => $item['quantity'] * $item['unit_price'],
                     ]);
 
-                    $this->inventoryStockService->adjustStock($item['product_id'], $item['quantity'], $data['movement_type'], $data);
+                    // Step 3: Update actual stock levels (single source of truth)
+                    $this->inventoryStockService->adjustStock(
+                        $item['product_id'], 
+                        $item['quantity'], 
+                        $data['movement_type'], 
+                        $data
+                    );
                 }
-                return $movement;
             });
+
+            return $movement;
         } catch (\Throwable $th) {
             throw $th;
         }
