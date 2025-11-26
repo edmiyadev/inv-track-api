@@ -34,9 +34,4 @@ class Product extends Model
     {
         return $this->belongsTo(Supplier::class);
     }
-
-    public function stockMovements(): HasMany
-    {
-        return $this->hasMany(StockMovement::class);
-    }
 }
