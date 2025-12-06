@@ -2,26 +2,25 @@
 
 namespace App\Policies;
 
-use App\Models\Purchase;
+use App\Models\inventoryMovement;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
-class PurchasePolicy
+class InventoryMovementPolicy
 {
     /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('purchases.viewAny');
+        return $user->can('inventory_movements.viewAny');
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Purchase $purchase): bool
+    public function view(User $user, inventoryMovement $inventoryMovement): bool
     {
-        return $user->can('purchases.view');
+        return $user->can('inventory_movements.view');
     }
 
     /**
@@ -29,29 +28,29 @@ class PurchasePolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('purchases.create');
+        return $user->can('inventory_movements.create');
     }
 
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Purchase $purchase): bool
+    public function update(User $user, inventoryMovement $inventoryMovement): bool
     {
-        return $user->can('purchases.edit');
+        return false;
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Purchase $purchase): bool
+    public function delete(User $user, inventoryMovement $inventoryMovement): bool
     {
-        return $user->can('purchases.delete');
+        return false;
     }
 
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(User $user, Purchase $purchase): bool
+    public function restore(User $user, inventoryMovement $inventoryMovement): bool
     {
         return false;
     }
@@ -59,7 +58,7 @@ class PurchasePolicy
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, Purchase $purchase): bool
+    public function forceDelete(User $user, inventoryMovement $inventoryMovement): bool
     {
         return false;
     }

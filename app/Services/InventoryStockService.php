@@ -52,8 +52,7 @@ class InventoryStockService implements InventoryStockServiceInterface
         if (isset($filters['warehouse_id'])) {
             $query->where('warehouse_id', $filters['warehouse_id']);
         }
-
-        return $query->get()->toArray();
+        return $query->with([ 'product', 'warehouse'])->get()->toArray();
     }
 
     private function incrementStock(int $warehouseId, int $productId, int $quantity)

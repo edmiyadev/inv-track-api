@@ -6,13 +6,17 @@ use App\Http\Requests\StorePurchaseRequest;
 use App\Http\Requests\UpdatePurchaseRequest;
 use App\Interfaces\PurchaseServiceInterface;
 use App\Models\Purchase;
+use App\Traits\Authorizes;
 
 class PurchaseController extends Controller
 {
+    use Authorizes;
+
     public function __construct(private readonly PurchaseServiceInterface $purchaseService) {}
 
     public function index()
     {
+        $this->authorize('viewAny', Purchase::class);
         $purchases = $this->purchaseService->getAllPurchases();
         return response([
             "status" => 'success',
@@ -26,6 +30,7 @@ class PurchaseController extends Controller
      */
     public function store(StorePurchaseRequest $request)
     {
+        $this->authorize('create', Purchase::class);
         $purchase = $this->purchaseService->createPurchase($request->validated());
 
         if (!$purchase) {
@@ -48,7 +53,7 @@ class PurchaseController extends Controller
     public function show(int|string $purchaseId)
     {
         $purchase = $this->purchaseService->getPurchaseById($purchaseId);
-        // implement authorization here
+        $this->authorize('view', $purchase);
 
         if (!$purchase) {
             return response([
@@ -71,7 +76,8 @@ class PurchaseController extends Controller
     {
 
         $purchase = $this->purchaseService->getPurchaseById($purchaseId);
-        // implement authorization here
+        $this->authorize('update', $purchase);
+
         if (!$purchase) {
             return response([
                 "status" => 'error',
@@ -101,7 +107,7 @@ class PurchaseController extends Controller
     {
 
         $purchase = $this->purchaseService->getPurchaseById($purchaseId);
-        // implement authorization here
+        $this->authorize('delete', $purchase);
 
         if (!$purchase) {
             return response([

@@ -14,4 +14,7 @@ enum ModelPermissionEnum: string
     case PRODUCT_CATEGORY = 'product_categories';
     case PRODUCT = 'products';
     case WAREHOUSE = 'warehouses';
+    case PURCHASE = 'purchases';
+    case INVENTORY_STOCK = 'inventory_stocks';
+    case INVENTORY_MOVEMENT = 'inventory_movements';
 }

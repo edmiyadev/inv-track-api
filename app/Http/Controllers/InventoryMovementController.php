@@ -4,65 +4,56 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateInventoryMovementRequest;
 use App\Interfaces\InventoryMovementServiceInterface;
-use Illuminate\Http\JsonResponse;
+use App\Models\inventoryMovement;
+use App\Traits\Authorizes;
 
 class InventoryMovementController extends Controller
 {
+    use Authorizes;
+
     public function __construct(
         private readonly InventoryMovementServiceInterface $inventoryMovementService
-    ) {}
+    ) {
+    }
 
     /**
      * List all inventory movements
      * GET /api/inventory/movements
      */
-    public function index(): JsonResponse
+    public function index()
     {
-        try {
-            $inventoryMovements = $this->inventoryMovementService->listMovements();
+        $this->authorize('viewAny', inventoryMovement::class);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Inventory movements retrieved successfully',
-                'data' => $inventoryMovements
-            ]);
-        } catch (\Throwable $th) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error retrieving inventory movements',
-                'error' => $th->getMessage()
-            ], 500);
-        }
+        $inventoryMovements = $this->inventoryMovementService->listMovements();
+
+        return response([
+            'status' => 'success',
+            'message' => 'Inventory movements retrieved successfully',
+            'data' => $inventoryMovements
+        ]);
     }
 
     /**
      * Get specific inventory movement
      * GET /api/inventory/movements/{id}
      */
-    public function show(int $id): JsonResponse
+    public function show(int|string $id)
     {
-        try {
-            $inventoryMovement = $this->inventoryMovementService->getMovementById($id);
+        $inventoryMovement = $this->inventoryMovementService->getMovementById($id);
+        $this->authorize('view', $inventoryMovement);
 
-            if (!$inventoryMovement) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Inventory movement not found'
-                ], 404);
-            }
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Inventory movement retrieved successfully',
-                'data' => $inventoryMovement
-            ]);
-        } catch (\Throwable $th) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error retrieving inventory movement',
-                'error' => $th->getMessage()
-            ], 500);
+        if (!$inventoryMovement) {
+            return response([
+                'status' => 'error',
+                'message' => 'Inventory movement not found'
+            ], 404);
         }
+
+        return response([
+            'status' => 'success',
+            'message' => 'Inventory movement retrieved successfully',
+            'data' => $inventoryMovement
+        ]);
     }
 
     /**
@@ -72,21 +63,23 @@ class InventoryMovementController extends Controller
      * This endpoint creates movements that automatically update inventory_stocks
      * through InventoryMovementService -> InventoryStockService
      */
-    public function store(CreateInventoryMovementRequest $request): JsonResponse
+    public function store(CreateInventoryMovementRequest $request)
     {
-        try {
-            $movement = $this->inventoryMovementService->createMovement($request->validated());
+        $this->authorize('create', inventoryMovement::class);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Inventory movement created successfully',
-                'data' => $movement
-            ], 201);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage()
-            ], 400);
+        $movement = $this->inventoryMovementService->createMovement($request->validated());
+
+        if (!$movement) {
+            return response([
+                'status' => 'error',
+                'message' => 'Error creating inventory movement'
+            ], 500);
         }
+
+        return response([
+            'status' => 'success',
+            'message' => 'Inventory movement created successfully',
+            'data' => $movement
+        ], 201);
     }
 }

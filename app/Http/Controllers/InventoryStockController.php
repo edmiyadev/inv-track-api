@@ -4,11 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateReorderPointRequest;
 use App\Interfaces\InventoryStockServiceInterface;
+use App\Models\InventoryStock;
+use App\Traits\Authorizes;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class InventoryStockController extends Controller
 {
+    use Authorizes;
+
     public function __construct(
         private readonly InventoryStockServiceInterface $inventoryStockService
     ) {}
@@ -19,6 +23,8 @@ class InventoryStockController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
+        $this->authorize('viewAny', InventoryStock::class);
+
         try {
             $request->validate([
                 'product_id' => 'nullable|exists:products,id',
@@ -48,6 +54,8 @@ class InventoryStockController extends Controller
      */
     public function getByWarehouse(int $warehouseId): JsonResponse
     {
+        $this->authorize('viewAny', InventoryStock::class);
+
         try {
             $stocks = $this->inventoryStockService->getStockByWarehouse($warehouseId);
 
@@ -71,6 +79,8 @@ class InventoryStockController extends Controller
      */
     public function lowStock(Request $request): JsonResponse
     {
+        $this->authorize('viewAny', InventoryStock::class);
+
         try {
             $request->validate([
                 'warehouse_id' => 'nullable|exists:warehouses,id'
@@ -103,6 +113,8 @@ class InventoryStockController extends Controller
      */
     public function setReorderPoint(UpdateReorderPointRequest $request): JsonResponse
     {
+        $this->authorize('update', InventoryStock::class); // Authorizing on class as we haven't fetched the specific model instance here yet, but the intent is update.
+
         try {
             $validated = $request->validated();
             

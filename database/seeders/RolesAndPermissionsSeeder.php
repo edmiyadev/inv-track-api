@@ -44,6 +44,17 @@ class RolesAndPermissionsSeeder extends Seeder
             'suppliers.create',
             'suppliers.edit',
             'suppliers.delete',
+            'purchases.view',
+            'purchases.viewAny',
+            'purchases.create',
+            'purchases.edit',
+            'purchases.delete',
+            'inventory_stocks.view',
+            'inventory_stocks.viewAny',
+            'inventory_stocks.edit',
+            'inventory_movements.view',
+            'inventory_movements.viewAny',
+            'inventory_movements.create',
         ]);
     }
 }
