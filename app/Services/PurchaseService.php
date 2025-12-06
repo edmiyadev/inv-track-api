@@ -14,12 +14,12 @@ class PurchaseService implements PurchaseServiceInterface
 
     public function getAllPurchases()
     {
-        return Purchase::with(["items"])->get();
+        return Purchase::with(["items", "items.product", "supplier", "warehouse"])->get();
     }
 
     public function getPurchaseById(int $id)
     {
-        return Purchase::with(["items"])->find($id);
+        return Purchase::with(["items", "items.product", "supplier", "warehouse"])->find($id);
     }
 
     public function createPurchase(array $data)

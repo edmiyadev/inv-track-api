@@ -23,7 +23,7 @@ class StorePurchaseRequest extends FormRequest
     {
         return [
             'supplier_id' => 'required|exists:suppliers,id',
-            'warehouse_id' => 'nullable|exists:warehouses,id',
+            'warehouse_id' => 'required|exists:warehouses,id',
             'notes' => 'nullable|string',
             'items' => 'required|array|min:1',
             'items.*.product_id' => 'required|exists:products,id',
