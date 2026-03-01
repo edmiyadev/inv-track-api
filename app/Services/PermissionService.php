@@ -11,5 +11,4 @@ class PermissionService implements PermissionServiceInterface
     {
         return Permission::all();
     }
-
 }

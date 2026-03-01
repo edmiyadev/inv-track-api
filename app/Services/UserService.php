@@ -24,7 +24,7 @@ class UserService implements UserServiceInterface
 
     public function updateUser(User $user, array $data)
     {
-        if (!$data) {
+        if (! $data) {
             return false;
         }
 

@@ -10,8 +10,8 @@ class ProductCategory extends Model
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory;
-    protected $fillable = ['name'];
 
+    protected $fillable = ['name'];
 
     public function products(): HasMany
     {

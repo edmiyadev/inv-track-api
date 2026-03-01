@@ -24,7 +24,7 @@ class SupplierService implements SupplierServiceInterface
 
     public function updateSupplier(Supplier $supplier, array $data)
     {
-        if (!$data) {
+        if (! $data) {
             return false;
         }
 

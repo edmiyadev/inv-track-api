@@ -16,7 +16,7 @@ class Warehouse extends Model
         'code',
         'location',
         'descripcion',
-        'is_active'
+        'is_active',
     ];
 
     public function inventoryStocks(): HasMany

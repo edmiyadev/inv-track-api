@@ -27,10 +27,11 @@ class SupplierController extends Controller
         $this->authorize('viewAny', Supplier::class);
 
         $suppliers = $this->supplierService->getAllSuppliers();
+
         return response([
-            "status" => 'success',
+            'status' => 'success',
             'message' => 'Suppliers retrieved successfully',
-            'data' => $suppliers
+            'data' => $suppliers,
         ]);
     }
 
@@ -43,17 +44,17 @@ class SupplierController extends Controller
 
         $supplier = $this->supplierService->createSupplier($request->validated());
 
-        if (!$supplier) {
+        if (! $supplier) {
             return response([
-                "status" => 'error',
-                'message' => 'Error creating supplier'
+                'status' => 'error',
+                'message' => 'Error creating supplier',
             ], 500);
         }
 
         return response([
-            "status" => 'success',
+            'status' => 'success',
             'message' => 'Supplier created successfully',
-            'data' => $supplier
+            'data' => $supplier,
         ], 201);
     }
 
@@ -65,17 +66,17 @@ class SupplierController extends Controller
         $supplier = $this->supplierService->getSupplierById($supplierId);
         $this->authorize('view', $supplier);
 
-        if (!$supplier) {
+        if (! $supplier) {
             return response([
-                "status" => 'error',
-                'message' => 'Supplier not found'
+                'status' => 'error',
+                'message' => 'Supplier not found',
             ], 404);
         }
 
         return response([
-            "status" => 'success',
+            'status' => 'success',
             'message' => 'Supplier retrieved successfully',
-            'data' => $supplier
+            'data' => $supplier,
         ]);
     }
 
@@ -88,25 +89,25 @@ class SupplierController extends Controller
         $supplier = $this->supplierService->getSupplierById($supplierId);
         $this->authorize('update', $supplier);
 
-        if (!$supplier) {
+        if (! $supplier) {
             return response([
-                "status" => 'error',
-                'message' => 'Supplier not found'
+                'status' => 'error',
+                'message' => 'Supplier not found',
             ], 404);
         }
 
         $supplierUpdated = $this->supplierService->updateSupplier($supplier, $request->validated());
 
-        if (!$supplierUpdated) {
+        if (! $supplierUpdated) {
             return response([
-                "status" => 'error',
-                'message' => 'Error updating supplier'
+                'status' => 'error',
+                'message' => 'Error updating supplier',
             ], 500);
         }
 
         return response([
-            "status" => 'success',
-            'message' => 'Supplier updated successfully'
+            'status' => 'success',
+            'message' => 'Supplier updated successfully',
         ]);
     }
 
@@ -118,23 +119,23 @@ class SupplierController extends Controller
         $supplier = $this->supplierService->getSupplierById($supplierId);
         $this->authorize('delete', $supplier);
 
-        if (!$supplier) {
+        if (! $supplier) {
             return response([
-                "status" => 'error',
-                'message' => 'Supplier not found'
+                'status' => 'error',
+                'message' => 'Supplier not found',
             ], 404);
         }
 
-        if (!$this->supplierService->deleteSupplier($supplier)) {
+        if (! $this->supplierService->deleteSupplier($supplier)) {
             return response([
-                "status" => 'error',
-                'message' => 'Error deleting supplier'
+                'status' => 'error',
+                'message' => 'Error deleting supplier',
             ], 500);
         }
 
         return response([
-            "status" => 'success',
-            'message' => 'Supplier deleted successfully'
+            'status' => 'success',
+            'message' => 'Supplier deleted successfully',
         ]);
     }
 }

@@ -15,7 +15,6 @@ class PurchaseItem extends Model
         'total_price',
     ];
 
-
     public function purchase(): BelongsTo
     {
         return $this->belongsTo(Purchase::class);

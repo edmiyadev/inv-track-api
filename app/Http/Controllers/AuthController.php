@@ -8,7 +8,6 @@ use App\Interfaces\AuthServiceInterface;
 
 class AuthController extends Controller
 {
-
     private readonly AuthServiceInterface $authService;
 
     public function __construct(AuthServiceInterface $authService)
@@ -20,14 +19,14 @@ class AuthController extends Controller
     {
         $resp = $this->authService->login($request->validated());
 
-        if (!$resp) {
-            return response(["message" => 'Credenciales incorrectas'], 402);
+        if (! $resp) {
+            return response(['message' => 'Credenciales incorrectas'], 402);
         }
 
         return response([
-            "status" => 'success',
+            'status' => 'success',
             'message' => 'loging success',
-            'data' => $resp
+            'data' => $resp,
         ]);
 
     }
@@ -36,14 +35,14 @@ class AuthController extends Controller
     {
         $resp = $this->authService->register($request->validated());
 
-        if (!$resp) {
-            return response(["message" => 'Error creating user'], 500);
+        if (! $resp) {
+            return response(['message' => 'Error creating user'], 500);
         }
 
         return response([
-            "status" => 'success',
+            'status' => 'success',
             'message' => 'user created',
-            'data' => $resp
+            'data' => $resp,
         ], 201);
     }
 
@@ -52,8 +51,8 @@ class AuthController extends Controller
         $this->authService->logout();
 
         return response([
-            "status" => 'success',
-            'message' => 'logout success'
+            'status' => 'success',
+            'message' => 'logout success',
         ]);
     }
 }

@@ -25,10 +25,11 @@ class UserController extends Controller
         $this->authorize('viewAny', User::class);
 
         $users = $this->userService->getAllUsers();
+
         return response([
-            "status" => 'success',
+            'status' => 'success',
             'message' => 'Users retrieved successfully',
-            'data' => $users
+            'data' => $users,
         ]);
     }
 
@@ -41,17 +42,17 @@ class UserController extends Controller
 
         $user = $this->userService->createUser($request->validated());
 
-        if (!$user) {
+        if (! $user) {
             return response([
-                "status" => 'error',
-                'message' => 'Error creating user'
+                'status' => 'error',
+                'message' => 'Error creating user',
             ], 500);
         }
 
         return response([
-            "status" => 'success',
+            'status' => 'success',
             'message' => 'User created successfully',
-            'data' => $user
+            'data' => $user,
         ], 201);
     }
 
@@ -63,17 +64,17 @@ class UserController extends Controller
         $user = $this->userService->getUserById($userId);
         $this->authorize('view', $user);
 
-        if (!$user) {
+        if (! $user) {
             return response([
-                "status" => 'error',
-                'message' => 'User not found'
+                'status' => 'error',
+                'message' => 'User not found',
             ], 404);
         }
 
         return response([
-            "status" => 'success',
+            'status' => 'success',
             'message' => 'User retrieved successfully',
-            'data' => $user
+            'data' => $user,
         ]);
     }
 
@@ -85,25 +86,25 @@ class UserController extends Controller
         $user = $this->userService->getUserById($userId);
         $this->authorize('update', $user);
 
-        if (!$user) {
+        if (! $user) {
             return response([
-                "status" => 'error',
-                'message' => 'User not found'
+                'status' => 'error',
+                'message' => 'User not found',
             ], 404);
         }
 
         $userUpdated = $this->userService->updateUser($user, $request->validated());
 
-        if (!$userUpdated) {
+        if (! $userUpdated) {
             return response([
-                "status" => 'error',
-                'message' => 'Error updating user'
+                'status' => 'error',
+                'message' => 'Error updating user',
             ], 500);
         }
 
         return response([
-            "status" => 'success',
-            'message' => 'User updated successfully'
+            'status' => 'success',
+            'message' => 'User updated successfully',
         ]);
     }
 
@@ -115,23 +116,23 @@ class UserController extends Controller
         $user = $this->userService->getUserById($userId);
         $this->authorize('delete', $user);
 
-        if (!$user) {
+        if (! $user) {
             return response([
-                "status" => 'error',
-                'message' => 'User not found'
+                'status' => 'error',
+                'message' => 'User not found',
             ], 404);
         }
 
-        if (!$this->userService->deleteUser($user)) {
+        if (! $this->userService->deleteUser($user)) {
             return response([
-                "status" => 'error',
-                'message' => 'Error deleting user'
+                'status' => 'error',
+                'message' => 'Error deleting user',
             ], 500);
         }
 
         return response([
-            "status" => 'success',
-            'message' => 'User deleted successfully'
+            'status' => 'success',
+            'message' => 'User deleted successfully',
         ]);
     }
 
@@ -141,32 +142,32 @@ class UserController extends Controller
 
         if (empty($request->roles)) {
             return response([
-                "status" => 'success',
-                'message' => 'Roles updated successfully (no roles provided)'
+                'status' => 'success',
+                'message' => 'Roles updated successfully (no roles provided)',
             ], 200);
         }
 
         $this->authorize('syncRoles', $request->validated());
 
-        if (!$user) {
+        if (! $user) {
             return response([
-                "status" => 'error',
-                'message' => 'User not found'
+                'status' => 'error',
+                'message' => 'User not found',
             ], 404);
         }
 
         $userUpdated = $this->userService->syncRoles($user, $request->validated());
 
-        if (!$userUpdated) {
+        if (! $userUpdated) {
             return response([
-                "status" => 'error',
-                'message' => 'Error updating user roles'
+                'status' => 'error',
+                'message' => 'Error updating user roles',
             ], 500);
         }
 
         return response([
-            "status" => 'success',
-            'message' => 'User roles updated successfully'
+            'status' => 'success',
+            'message' => 'User roles updated successfully',
         ]);
     }
 }

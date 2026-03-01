@@ -13,8 +13,7 @@ class InventoryMovementController extends Controller
 
     public function __construct(
         private readonly InventoryMovementServiceInterface $inventoryMovementService
-    ) {
-    }
+    ) {}
 
     /**
      * List all inventory movements
@@ -29,7 +28,7 @@ class InventoryMovementController extends Controller
         return response([
             'status' => 'success',
             'message' => 'Inventory movements retrieved successfully',
-            'data' => $inventoryMovements
+            'data' => $inventoryMovements,
         ]);
     }
 
@@ -42,24 +41,24 @@ class InventoryMovementController extends Controller
         $inventoryMovement = $this->inventoryMovementService->getMovementById($id);
         $this->authorize('view', $inventoryMovement);
 
-        if (!$inventoryMovement) {
+        if (! $inventoryMovement) {
             return response([
                 'status' => 'error',
-                'message' => 'Inventory movement not found'
+                'message' => 'Inventory movement not found',
             ], 404);
         }
 
         return response([
             'status' => 'success',
             'message' => 'Inventory movement retrieved successfully',
-            'data' => $inventoryMovement
+            'data' => $inventoryMovement,
         ]);
     }
 
     /**
      * Create a new inventory movement (transfer or adjustment)
      * POST /api/inventory/movements
-     * 
+     *
      * This endpoint creates movements that automatically update inventory_stocks
      * through InventoryMovementService -> InventoryStockService
      */
@@ -69,17 +68,17 @@ class InventoryMovementController extends Controller
 
         $movement = $this->inventoryMovementService->createMovement($request->validated());
 
-        if (!$movement) {
+        if (! $movement) {
             return response([
                 'status' => 'error',
-                'message' => 'Error creating inventory movement'
+                'message' => 'Error creating inventory movement',
             ], 500);
         }
 
         return response([
             'status' => 'success',
             'message' => 'Inventory movement created successfully',
-            'data' => $movement
+            'data' => $movement,
         ], 201);
     }
 }

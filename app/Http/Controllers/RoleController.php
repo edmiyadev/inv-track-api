@@ -23,10 +23,11 @@ class RoleController extends Controller
         // $this->authorize('viewAny', Role::class);
 
         $roles = $this->roleService->getAllRoles();
+
         return response([
-            "status" => 'success',
+            'status' => 'success',
             'message' => 'Roles retrieved successfully',
-            'data' => $roles
+            'data' => $roles,
         ]);
     }
 
@@ -39,17 +40,17 @@ class RoleController extends Controller
 
         $role = $this->roleService->createRole($request->validated());
 
-        if (!$role) {
+        if (! $role) {
             return response([
-                "status" => 'error',
-                'message' => 'Error creating role'
+                'status' => 'error',
+                'message' => 'Error creating role',
             ], 500);
         }
 
         return response([
-            "status" => 'success',
+            'status' => 'success',
             'message' => 'Role created successfully',
-            'data' => $role
+            'data' => $role,
         ], 201);
     }
 
@@ -61,17 +62,17 @@ class RoleController extends Controller
         $role = $this->roleService->getRoleById($roleId);
         // $this->authorize('view', $role);
 
-        if (!$role) {
+        if (! $role) {
             return response([
-                "status" => 'error',
-                'message' => 'Role not found'
+                'status' => 'error',
+                'message' => 'Role not found',
             ], 404);
         }
 
         return response([
-            "status" => 'success',
+            'status' => 'success',
             'message' => 'Role retrieved successfully',
-            'data' => $role
+            'data' => $role,
         ]);
     }
 
@@ -84,25 +85,25 @@ class RoleController extends Controller
 
         // $this->authorize('update', $role);
 
-        if (!$role) {
+        if (! $role) {
             return response([
-                "status" => 'error',
-                'message' => 'Role not found'
+                'status' => 'error',
+                'message' => 'Role not found',
             ], 404);
         }
 
         $roleUpdated = $this->roleService->updateRole($role, $request->validated());
 
-        if (!$roleUpdated) {
+        if (! $roleUpdated) {
             return response([
-                "status" => 'error',
-                'message' => 'Error updating role'
+                'status' => 'error',
+                'message' => 'Error updating role',
             ], 500);
         }
 
         return response([
-            "status" => 'success',
-            'message' => 'Role updated successfully'
+            'status' => 'success',
+            'message' => 'Role updated successfully',
         ]);
     }
 
@@ -113,23 +114,23 @@ class RoleController extends Controller
     {
         $role = $this->roleService->getRoleById($roleId);
         // $this->authorize('delete', $role);
-        if (!$role) {
+        if (! $role) {
             return response([
-                "status" => 'error',
-                'message' => 'Role not found'
+                'status' => 'error',
+                'message' => 'Role not found',
             ], 404);
         }
 
-        if (!$this->roleService->deleteRole($role)) {
+        if (! $this->roleService->deleteRole($role)) {
             return response([
-                "status" => 'error',
-                'message' => 'Error deleting role'
+                'status' => 'error',
+                'message' => 'Error deleting role',
             ], 500);
         }
 
         return response([
-            "status" => 'success',
-            'message' => 'Role deleted successfully'
+            'status' => 'success',
+            'message' => 'Role deleted successfully',
         ]);
     }
 }

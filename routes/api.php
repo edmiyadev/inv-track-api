@@ -37,7 +37,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('stocks/warehouse/{warehouseId}', [InventoryStockController::class, 'getByWarehouse']);
         Route::get('stocks/low-stock', [InventoryStockController::class, 'lowStock']);
         Route::put('stocks/reorder-point', [InventoryStockController::class, 'setReorderPoint']);
-        
+
         // Inventory movements (transfers & adjustments)
         Route::post('movements', [InventoryMovementController::class, 'store']);
         Route::get('movements', [InventoryMovementController::class, 'index']);

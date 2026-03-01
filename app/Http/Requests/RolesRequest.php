@@ -23,7 +23,7 @@ class RolesRequest extends FormRequest
     {
         return [
             'roles' => 'array',
-            'roles.*' => 'string|exists:roles,name'
+            'roles.*' => 'string|exists:roles,name',
         ];
     }
 }

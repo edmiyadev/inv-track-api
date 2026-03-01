@@ -28,7 +28,7 @@ class InventoryStockController extends Controller
         try {
             $request->validate([
                 'product_id' => 'nullable|exists:products,id',
-                'warehouse_id' => 'nullable|exists:warehouses,id'
+                'warehouse_id' => 'nullable|exists:warehouses,id',
             ]);
 
             $filters = $request->only(['product_id', 'warehouse_id']);
@@ -37,13 +37,13 @@ class InventoryStockController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Stocks retrieved successfully',
-                'data' => $stocks
+                'data' => $stocks,
             ]);
         } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,
                 'message' => 'Error retrieving stocks',
-                'error' => $th->getMessage()
+                'error' => $th->getMessage(),
             ], 500);
         }
     }
@@ -62,13 +62,13 @@ class InventoryStockController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Warehouse stock retrieved successfully',
-                'data' => $stocks
+                'data' => $stocks,
             ]);
         } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,
                 'message' => 'Error retrieving warehouse stock',
-                'error' => $th->getMessage()
+                'error' => $th->getMessage(),
             ], 500);
         }
     }
@@ -83,7 +83,7 @@ class InventoryStockController extends Controller
 
         try {
             $request->validate([
-                'warehouse_id' => 'nullable|exists:warehouses,id'
+                'warehouse_id' => 'nullable|exists:warehouses,id',
             ]);
 
             $warehouseId = $request->query('warehouse_id');
@@ -93,13 +93,13 @@ class InventoryStockController extends Controller
                 'success' => true,
                 'message' => 'Low stock products retrieved successfully',
                 'data' => $products,
-                'count' => count($products)
+                'count' => count($products),
             ]);
         } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,
                 'message' => 'Error retrieving low stock products',
-                'error' => $th->getMessage()
+                'error' => $th->getMessage(),
             ], 500);
         }
     }
@@ -107,7 +107,7 @@ class InventoryStockController extends Controller
     /**
      * Set or update reorder point for a product in a warehouse
      * PUT /api/inventory/stocks/reorder-point
-     * 
+     *
      * Note: This endpoint only modifies reorder_point configuration,
      * it does NOT modify stock quantities. Stock changes must go through movements.
      */
@@ -117,7 +117,7 @@ class InventoryStockController extends Controller
 
         try {
             $validated = $request->validated();
-            
+
             $stock = $this->inventoryStockService->setReorderPoint(
                 $validated['warehouse_id'],
                 $validated['product_id'],
@@ -127,12 +127,12 @@ class InventoryStockController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Reorder point updated successfully',
-                'data' => $stock
+                'data' => $stock,
             ]);
         } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,
-                'message' => $th->getMessage()
+                'message' => $th->getMessage(),
             ], 500);
         }
     }

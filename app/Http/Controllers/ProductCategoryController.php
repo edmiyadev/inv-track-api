@@ -11,8 +11,8 @@ use App\Traits\Authorizes;
 class ProductCategoryController extends Controller
 {
     use Authorizes;
-    protected readonly ProductCategoryServiceInterface $productCategoryService;
 
+    protected readonly ProductCategoryServiceInterface $productCategoryService;
 
     public function __construct(ProductCategoryServiceInterface $productCategoryService)
     {
@@ -27,10 +27,11 @@ class ProductCategoryController extends Controller
         $this->authorize('viewAny', ProductCategory::class);
 
         $productCategories = $this->productCategoryService->getAllProductCategories();
+
         return response([
-            "status" => 'success',
+            'status' => 'success',
             'message' => 'Product categories retrieved successfully',
-            'data' => $productCategories
+            'data' => $productCategories,
         ]);
     }
 
@@ -43,17 +44,17 @@ class ProductCategoryController extends Controller
 
         $productCategory = $this->productCategoryService->createProductCategory($request->validated());
 
-        if (!$productCategory) {
+        if (! $productCategory) {
             return response([
-                "status" => 'error',
-                'message' => 'Error creating product category'
+                'status' => 'error',
+                'message' => 'Error creating product category',
             ], 500);
         }
 
         return response([
-            "status" => 'success',
+            'status' => 'success',
             'message' => 'Product category created successfully',
-            'data' => $productCategory
+            'data' => $productCategory,
         ], 201);
     }
 
@@ -65,17 +66,17 @@ class ProductCategoryController extends Controller
         $productCategory = $this->productCategoryService->getProductCategoryById($productCategoryId);
         $this->authorize('view', $productCategory);
 
-        if (!$productCategory) {
+        if (! $productCategory) {
             return response([
-                "status" => 'error',
-                'message' => 'Product category not found'
+                'status' => 'error',
+                'message' => 'Product category not found',
             ], 404);
         }
 
         return response([
-            "status" => 'success',
+            'status' => 'success',
             'message' => 'Product category retrieved successfully',
-            'data' => $productCategory
+            'data' => $productCategory,
         ]);
     }
 
@@ -88,25 +89,25 @@ class ProductCategoryController extends Controller
         $productCategory = $this->productCategoryService->getProductCategoryById($productCategoryId);
         $this->authorize('update', $productCategory);
 
-        if (!$productCategory) {
+        if (! $productCategory) {
             return response([
-                "status" => 'error',
-                'message' => 'Product category not found'
+                'status' => 'error',
+                'message' => 'Product category not found',
             ], 404);
         }
 
         $productCategoryUpdated = $this->productCategoryService->updateProductCategory($productCategory, $request->validated());
 
-        if (!$productCategoryUpdated) {
+        if (! $productCategoryUpdated) {
             return response([
-                "status" => 'error',
-                'message' => 'Error updating supplier'
+                'status' => 'error',
+                'message' => 'Error updating supplier',
             ], 500);
         }
 
         return response([
-            "status" => 'success',
-            'message' => 'Product category updated successfully'
+            'status' => 'success',
+            'message' => 'Product category updated successfully',
         ]);
     }
 
@@ -119,23 +120,23 @@ class ProductCategoryController extends Controller
 
         $this->authorize('delete', $productCategory);
 
-        if (!$productCategory) {
+        if (! $productCategory) {
             return response([
-                "status" => 'error',
-                'message' => 'Product category not found'
+                'status' => 'error',
+                'message' => 'Product category not found',
             ], 404);
         }
 
-        if (!$this->productCategoryService->deleteProductCategory($productCategory)) {
+        if (! $this->productCategoryService->deleteProductCategory($productCategory)) {
             return response([
-                "status" => 'error',
-                'message' => 'Error deleting supplier'
+                'status' => 'error',
+                'message' => 'Error deleting supplier',
             ], 500);
         }
 
         return response([
-            "status" => 'success',
-            'message' => 'Product category deleted successfully'
+            'status' => 'success',
+            'message' => 'Product category deleted successfully',
         ]);
     }
 }

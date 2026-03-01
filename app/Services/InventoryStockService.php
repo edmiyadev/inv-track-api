@@ -52,7 +52,8 @@ class InventoryStockService implements InventoryStockServiceInterface
         if (isset($filters['warehouse_id'])) {
             $query->where('warehouse_id', $filters['warehouse_id']);
         }
-        return $query->with([ 'product', 'warehouse'])->get()->toArray();
+
+        return $query->with(['product', 'warehouse'])->get()->toArray();
     }
 
     private function incrementStock(int $warehouseId, int $productId, int $quantity)
@@ -71,12 +72,12 @@ class InventoryStockService implements InventoryStockServiceInterface
             ['warehouse_id' => $warehouseId, 'product_id' => $productId],
             ['quantity' => 0, 'reorder_point' => 10]
         );
-        
+
         // Validar que no quede negativo
         if ($stock->quantity < $quantity) {
             throw new \Exception("Insufficient stock. Available: {$stock->quantity}, Requested: {$quantity}");
         }
-        
+
         $stock->decrement('quantity', $quantity);
     }
 
@@ -93,14 +94,14 @@ class InventoryStockService implements InventoryStockServiceInterface
         return InventoryStock::where('warehouse_id', $warehouseId)
             ->with('product')
             ->get()
-            ->map(fn($stock) => [
+            ->map(fn ($stock) => [
                 'product_id' => $stock->product_id,
                 'product_name' => $stock->product->name,
                 'product_sku' => $stock->product->sku,
                 'quantity' => $stock->quantity,
                 'reorder_point' => $stock->reorder_point,
                 'needs_reorder' => $stock->quantity <= $stock->reorder_point,
-                'status' => $stock->quantity <= $stock->reorder_point ? 'low_stock' : 'ok'
+                'status' => $stock->quantity <= $stock->reorder_point ? 'low_stock' : 'ok',
             ])
             ->toArray();
     }
@@ -115,7 +116,7 @@ class InventoryStockService implements InventoryStockServiceInterface
         }
 
         return $query->get()
-            ->map(fn($stock) => [
+            ->map(fn ($stock) => [
                 'product_id' => $stock->product_id,
                 'product_name' => $stock->product->name,
                 'product_sku' => $stock->product->sku,
@@ -123,7 +124,7 @@ class InventoryStockService implements InventoryStockServiceInterface
                 'warehouse_name' => $stock->warehouse->name,
                 'quantity' => $stock->quantity,
                 'reorder_point' => $stock->reorder_point,
-                'deficit' => $stock->reorder_point - $stock->quantity
+                'deficit' => $stock->reorder_point - $stock->quantity,
             ])
             ->toArray();
     }

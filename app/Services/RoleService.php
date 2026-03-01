@@ -27,7 +27,7 @@ class RoleService implements RoleServiceInterface
 
     public function updateRole(Role $role, array $data)
     {
-        if (!$data) {
+        if (! $data) {
             return false;
         }
 

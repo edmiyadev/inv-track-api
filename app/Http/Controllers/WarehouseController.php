@@ -27,10 +27,11 @@ class WarehouseController extends Controller
         $this->authorize('viewAny', Warehouse::class);
 
         $warehouses = $this->warehouseService->getAllWarehouses();
+
         return response([
-            "status" => 'success',
+            'status' => 'success',
             'message' => 'Warehouses retrieved successfully',
-            'data' => $warehouses
+            'data' => $warehouses,
         ]);
     }
 
@@ -43,17 +44,17 @@ class WarehouseController extends Controller
 
         $warehouse = $this->warehouseService->createWarehouse($request->validated());
 
-        if (!$warehouse) {
+        if (! $warehouse) {
             return response([
-                "status" => 'error',
-                'message' => 'Error creating warehouse'
+                'status' => 'error',
+                'message' => 'Error creating warehouse',
             ], 500);
         }
 
         return response([
-            "status" => 'success',
+            'status' => 'success',
             'message' => 'Warehouse created successfully',
-            'data' => $warehouse
+            'data' => $warehouse,
         ], 201);
     }
 
@@ -65,17 +66,17 @@ class WarehouseController extends Controller
         $warehouse = $this->warehouseService->getWarehouseById($warehouseId);
         $this->authorize('view', $warehouse);
 
-        if (!$warehouse) {
+        if (! $warehouse) {
             return response([
-                "status" => 'error',
-                'message' => 'Warehouse not found'
+                'status' => 'error',
+                'message' => 'Warehouse not found',
             ], 404);
         }
 
         return response([
-            "status" => 'success',
+            'status' => 'success',
             'message' => 'Warehouse retrieved successfully',
-            'data' => $warehouse
+            'data' => $warehouse,
         ]);
     }
 
@@ -88,25 +89,25 @@ class WarehouseController extends Controller
         $warehouse = $this->warehouseService->getWarehouseById($warehouseId);
         $this->authorize('update', $warehouse);
 
-        if (!$warehouse) {
+        if (! $warehouse) {
             return response([
-                "status" => 'error',
-                'message' => 'Warehouse not found'
+                'status' => 'error',
+                'message' => 'Warehouse not found',
             ], 404);
         }
 
         $warehouseUpdated = $this->warehouseService->updateWarehouse($warehouse, $request->validated());
 
-        if (!$warehouseUpdated) {
+        if (! $warehouseUpdated) {
             return response([
-                "status" => 'error',
-                'message' => 'Error updating warehouse'
+                'status' => 'error',
+                'message' => 'Error updating warehouse',
             ], 500);
         }
 
         return response([
-            "status" => 'success',
-            'message' => 'Warehouse updated successfully'
+            'status' => 'success',
+            'message' => 'Warehouse updated successfully',
         ]);
     }
 
@@ -118,23 +119,23 @@ class WarehouseController extends Controller
         $warehouse = $this->warehouseService->getWarehouseById($warehouseId);
         $this->authorize('delete', $warehouse);
 
-        if (!$warehouse) {
+        if (! $warehouse) {
             return response([
-                "status" => 'error',
-                'message' => 'Warehouse not found'
+                'status' => 'error',
+                'message' => 'Warehouse not found',
             ], 404);
         }
 
-        if (!$this->warehouseService->deleteWarehouse($warehouse)) {
+        if (! $this->warehouseService->deleteWarehouse($warehouse)) {
             return response([
-                "status" => 'error',
-                'message' => 'Error deleting warehouse'
+                'status' => 'error',
+                'message' => 'Error deleting warehouse',
             ], 500);
         }
 
         return response([
-            "status" => 'success',
-            'message' => 'Warehouse deleted successfully'
+            'status' => 'success',
+            'message' => 'Warehouse deleted successfully',
         ]);
     }
 }

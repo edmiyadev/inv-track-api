@@ -25,7 +25,7 @@ class RegisterRequest extends FormRequest
             'name' => 'required|string|min:2',
             'username' => 'required|string|unique:users,username',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8'
+            'password' => 'required|string|min:8',
         ];
     }
 }

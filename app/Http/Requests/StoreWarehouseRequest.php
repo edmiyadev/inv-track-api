@@ -26,7 +26,7 @@ class StoreWarehouseRequest extends FormRequest
             'code' => 'required|string|max:100|unique:warehouses,code',
             'location' => 'nullable|string|max:255',
             'descripcion' => 'nullable|string',
-            'is_active' => 'sometimes|boolean'
+            'is_active' => 'sometimes|boolean',
         ];
     }
 }

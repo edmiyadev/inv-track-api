@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Interfaces\PurchaseServiceInterface;
 use App\Models\Purchase;
-use App\Models\PurchaseItem;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
@@ -14,18 +13,18 @@ class PurchaseService implements PurchaseServiceInterface
 
     public function getAllPurchases()
     {
-        return Purchase::with(["items", "items.product", "supplier", "warehouse"])->get();
+        return Purchase::with(['items', 'items.product', 'supplier', 'warehouse'])->get();
     }
 
     public function getPurchaseById(int $id)
     {
-        return Purchase::with(["items", "items.product", "supplier", "warehouse"])->find($id);
+        return Purchase::with(['items', 'items.product', 'supplier', 'warehouse'])->find($id);
     }
 
     public function createPurchase(array $data)
     {
-        $items = $data["items"] ?? [];
-        $purchaseWithoutItems = Arr::except($data, ["items"]);
+        $items = $data['items'] ?? [];
+        $purchaseWithoutItems = Arr::except($data, ['items']);
         $newPurchase = null;
 
         try {
@@ -36,34 +35,34 @@ class PurchaseService implements PurchaseServiceInterface
             ) {
                 $newPurchase = Purchase::create([
                     ...$purchaseWithoutItems,
-                    "total_amount" => 0,
+                    'total_amount' => 0,
                 ]);
 
                 $linesToInsert = [];
                 $totalAmount = 0;
 
                 foreach ($items as $item) {
-                    $subtotal = $item["quantity"] * $item["unit_price"];
+                    $subtotal = $item['quantity'] * $item['unit_price'];
                     $totalAmount += $subtotal;
 
                     $linesToInsert[] = [
-                        "purchase_id" => $newPurchase->id,
-                        "product_id" => $item["product_id"],
-                        "quantity" => $item["quantity"],
-                        "unit_price" => $item["unit_price"],
-                        "total_price" => $subtotal,
+                        'purchase_id' => $newPurchase->id,
+                        'product_id' => $item['product_id'],
+                        'quantity' => $item['quantity'],
+                        'unit_price' => $item['unit_price'],
+                        'total_price' => $subtotal,
                     ];
                 }
                 $newPurchase->items()->insert($linesToInsert);
-                $newPurchase->update(["total_amount" => $totalAmount]);
+                $newPurchase->update(['total_amount' => $totalAmount]);
 
                 $this->inventoryMovementService->createMovement([
-                    "movement_type" => "in",
-                    "destination_warehouse_id" => $newPurchase["warehouse_id"] ?? null,
-                    "items" => $items,
+                    'movement_type' => 'in',
+                    'destination_warehouse_id' => $newPurchase['warehouse_id'] ?? null,
+                    'items' => $items,
                 ]);
 
-                return $newPurchase->with("items");
+                return $newPurchase->with('items');
             });
 
             return $newPurchase?->toArray();
@@ -74,12 +73,12 @@ class PurchaseService implements PurchaseServiceInterface
 
     public function updatePurchase(Purchase $purchase, array $data)
     {
-        if (!$data) {
+        if (! $data) {
             return false;
         }
 
-        $items = $data["items"] ?? null;
-        $purchaseData = Arr::except($data, ["items"]);
+        $items = $data['items'] ?? null;
+        $purchaseData = Arr::except($data, ['items']);
         $updatedPurchase = $purchase;
 
         try {
@@ -88,7 +87,7 @@ class PurchaseService implements PurchaseServiceInterface
                 $purchaseData,
                 $items,
             ) {
-                if (!empty($purchaseData)) {
+                if (! empty($purchaseData)) {
                     $purchase->update($purchaseData);
                 }
 
@@ -101,27 +100,28 @@ class PurchaseService implements PurchaseServiceInterface
                     $totalAmount = 0;
 
                     foreach ($items as $item) {
-                        $quantity = $item["quantity"] ?? 0;
-                        $unitPrice = $item["unit_price"] ?? 0;
+                        $quantity = $item['quantity'] ?? 0;
+                        $unitPrice = $item['unit_price'] ?? 0;
                         $subtotal = $quantity * $unitPrice;
                         $totalAmount += $subtotal;
 
                         $linesToInsert[] = [
-                            "purchase_id" => $purchase->id,
-                            "product_id" => $item["product_id"],
-                            "quantity" => $quantity,
-                            "unit_price" => $unitPrice,
-                            "total_price" => $subtotal,
+                            'purchase_id' => $purchase->id,
+                            'product_id' => $item['product_id'],
+                            'quantity' => $quantity,
+                            'unit_price' => $unitPrice,
+                            'total_price' => $subtotal,
                         ];
                     }
 
-                    if (!empty($linesToInsert)) {
+                    if (! empty($linesToInsert)) {
                         $purchase->items()->insert($linesToInsert);
                     }
 
-                    $purchase->update(["total_amount" => $totalAmount]);
+                    $purchase->update(['total_amount' => $totalAmount]);
                 }
-                return $purchase->with("items");
+
+                return $purchase->with('items');
             });
 
             return $updatedPurchase;

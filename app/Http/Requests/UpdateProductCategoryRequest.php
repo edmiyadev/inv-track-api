@@ -22,7 +22,7 @@ class UpdateProductCategoryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'sometimes|required|string|max:255|unique:product_categories,name,' . $this->route('category'),
+            'name' => 'sometimes|required|string|max:255|unique:product_categories,name,'.$this->route('category'),
         ];
     }
 }

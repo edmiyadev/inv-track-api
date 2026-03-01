@@ -11,22 +11,26 @@ class WarehouseService implements WarehouseServiceInterface
     {
         return Warehouse::orderBy('created_at', 'desc')->paginate(request()->per_page ?? 10);
     }
+
     public function getWarehouseById(int|string $id)
     {
         return Warehouse::find($id);
     }
+
     public function createWarehouse(array $data)
     {
         return Warehouse::create($data);
     }
+
     public function updateWarehouse(Warehouse $warehouse, array $data)
     {
-        if (!$data) {
+        if (! $data) {
             return false;
         }
 
         return $warehouse->update($data);
     }
+
     public function deleteWarehouse(Warehouse $warehouse)
     {
         return $warehouse->delete();

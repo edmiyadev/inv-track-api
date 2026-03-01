@@ -17,15 +17,16 @@ class InventoryMovementService implements InventoryMovementServiceInterface
 
     /**
      * Create a new inventory movement
-     * 
+     *
      * This is the ONLY way to modify inventory_stocks through movements.
-     * Flow: 
+     * Flow:
      * 1. Creates InventoryMovement record (audit trail)
      * 2. Creates InventoryMovementItem records (details)
      * 3. Calls InventoryStockService to update actual stock levels
-     * 
-     * @param array $data Movement data (type, warehouses, items)
+     *
+     * @param  array  $data  Movement data (type, warehouses, items)
      * @return inventoryMovement
+     *
      * @throws \Exception If transaction fails or stock validation fails
      */
     public function createMovement(array $data)
@@ -54,9 +55,9 @@ class InventoryMovementService implements InventoryMovementServiceInterface
 
                     // Step 3: Update actual stock levels (single source of truth)
                     $this->inventoryStockService->adjustStock(
-                        $item['product_id'], 
-                        $item['quantity'], 
-                        $data['movement_type'], 
+                        $item['product_id'],
+                        $item['quantity'],
+                        $data['movement_type'],
                         $data
                     );
                 }
@@ -77,4 +78,4 @@ class InventoryMovementService implements InventoryMovementServiceInterface
     {
         return $this->inventoryMovement->with('items')->get();
     }
-};
+}

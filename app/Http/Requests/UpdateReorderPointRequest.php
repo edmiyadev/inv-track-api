@@ -24,7 +24,7 @@ class UpdateReorderPointRequest extends FormRequest
         return [
             'warehouse_id' => 'required|exists:warehouses,id',
             'product_id' => 'required|exists:products,id',
-            'reorder_point' => 'required|integer|min:0|max:10000'
+            'reorder_point' => 'required|integer|min:0|max:10000',
         ];
     }
 

@@ -23,10 +23,10 @@ class UpdateWarehouseRequest extends FormRequest
     {
         return [
             'name' => 'sometimes|required|string|max:255',
-            'code' => 'sometimes|required|string|max:100|unique:warehouses,code,' . $this->route('warehouse'),
+            'code' => 'sometimes|required|string|max:100|unique:warehouses,code,'.$this->route('warehouse'),
             'location' => 'nullable|string|max:255',
             'descripcion' => 'nullable|string',
-            'is_active' => 'sometimes|boolean'
+            'is_active' => 'sometimes|boolean',
         ];
     }
 }

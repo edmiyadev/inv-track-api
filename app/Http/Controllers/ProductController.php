@@ -11,8 +11,8 @@ use App\Traits\Authorizes;
 class ProductController extends Controller
 {
     use Authorizes;
-    protected readonly ProductServiceInterface $productService;
 
+    protected readonly ProductServiceInterface $productService;
 
     public function __construct(ProductServiceInterface $productService)
     {
@@ -27,10 +27,11 @@ class ProductController extends Controller
         $this->authorize('viewAny', Product::class);
 
         $products = $this->productService->getAllProducts();
+
         return response([
-            "status" => 'success',
+            'status' => 'success',
             'message' => 'Products retrieved successfully',
-            'data' => $products
+            'data' => $products,
         ]);
     }
 
@@ -43,17 +44,17 @@ class ProductController extends Controller
 
         $product = $this->productService->createProduct($request->validated());
 
-        if (!$product) {
+        if (! $product) {
             return response([
-                "status" => 'error',
-                'message' => 'Error creating product'
+                'status' => 'error',
+                'message' => 'Error creating product',
             ], 500);
         }
 
         return response([
-            "status" => 'success',
+            'status' => 'success',
             'message' => 'Product created successfully',
-            'data' => $product
+            'data' => $product,
         ], 201);
     }
 
@@ -65,17 +66,17 @@ class ProductController extends Controller
         $product = $this->productService->getProductById($productId);
         $this->authorize('view', $product);
 
-        if (!$product) {
+        if (! $product) {
             return response([
-                "status" => 'error',
-                'message' => 'Product not found'
+                'status' => 'error',
+                'message' => 'Product not found',
             ], 404);
         }
 
         return response([
-            "status" => 'success',
+            'status' => 'success',
             'message' => 'Product retrieved successfully',
-            'data' => $product
+            'data' => $product,
         ]);
     }
 
@@ -88,25 +89,25 @@ class ProductController extends Controller
         $product = $this->productService->getProductById($productId);
         $this->authorize('update', $product);
 
-        if (!$product) {
+        if (! $product) {
             return response([
-                "status" => 'error',
-                'message' => 'Product not found'
+                'status' => 'error',
+                'message' => 'Product not found',
             ], 404);
         }
 
         $productUpdated = $this->productService->updateProduct($product, $request->validated());
 
-        if (!$productUpdated) {
+        if (! $productUpdated) {
             return response([
-                "status" => 'error',
-                'message' => 'Error updating supplier'
+                'status' => 'error',
+                'message' => 'Error updating supplier',
             ], 500);
         }
 
         return response([
-            "status" => 'success',
-            'message' => 'Product updated successfully'
+            'status' => 'success',
+            'message' => 'Product updated successfully',
         ]);
     }
 
@@ -119,23 +120,23 @@ class ProductController extends Controller
 
         $this->authorize('delete', $product);
 
-        if (!$product) {
+        if (! $product) {
             return response([
-                "status" => 'error',
-                'message' => 'Product not found'
+                'status' => 'error',
+                'message' => 'Product not found',
             ], 404);
         }
 
-        if (!$this->productService->deleteProduct($product)) {
+        if (! $this->productService->deleteProduct($product)) {
             return response([
-                "status" => 'error',
-                'message' => 'Error deleting supplier'
+                'status' => 'error',
+                'message' => 'Error deleting supplier',
             ], 500);
         }
 
         return response([
-            "status" => 'success',
-            'message' => 'Product deleted successfully'
+            'status' => 'success',
+            'message' => 'Product deleted successfully',
         ]);
     }
 }

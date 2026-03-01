@@ -24,7 +24,7 @@ class ProductCategoryService implements ProductCategoryServiceInterface
 
     public function updateProductCategory(ProductCategory $productCategory, array $data)
     {
-        if (!$data) {
+        if (! $data) {
             return false;
         }
 

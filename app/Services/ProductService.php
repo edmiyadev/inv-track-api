@@ -11,22 +11,26 @@ class ProductService implements ProductServiceInterface
     {
         return Product::orderBy('created_at', 'desc')->paginate(request()->per_page ?? 10);
     }
+
     public function getProductById(int|string $id)
     {
         return Product::find($id);
     }
+
     public function createProduct(array $data)
     {
         return Product::create($data);
     }
+
     public function updateProduct(Product $product, array $data)
     {
-        if (!$data) {
+        if (! $data) {
             return false;
         }
 
         return $product->update($data);
     }
+
     public function deleteProduct(Product $product)
     {
         return $product->delete();
