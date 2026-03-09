@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\PurchaseStatusEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -16,8 +17,14 @@ class Purchase extends Model
         'supplier_id',
         'warehouse_id',
         'total_amount',
-        'purchase_date',
+        'date',
+        'status',
         'notes',
+    ];
+
+    protected $casts = [
+        'status' => PurchaseStatusEnum::class,
+        'date' => 'datetime',
     ];
 
     public function items(): HasMany
