@@ -27,7 +27,6 @@ class StoreProductRequest extends FormRequest
             'description' => 'nullable|string|max:1000',
             'price' => 'required|numeric|min:0',
             'stock_quantity' => 'required|integer|min:0',
-            'reorder_point' => 'nullable|integer|min:0',
             'product_category_id' => 'required|exists:product_categories,id',
             'supplier_id' => 'required|exists:suppliers,id',
         ];
