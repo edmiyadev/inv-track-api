@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Enums\PurchaseStatusEnum;
+use App\Models\Purchase;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -27,10 +28,7 @@ class UpdatePurchaseRequest extends FormRequest
             'supplier_id' => 'sometimes|exists:suppliers,id',
             'warehouse_id' => 'sometimes|nullable|exists:warehouses,id',
             'notes' => 'sometimes|nullable|string',
-            'status' => [
-                'sometimes',
-                Rule::enum(PurchaseStatusEnum::class),
-            ],
+            'status' => 'sometimes|in:draft,posted,canceled',
             'date' => 'nullable|date_format:Y-m-d H:i:s',
             'items' => 'sometimes|array|min:1',
             'items.*.product_id' => 'required_with:items|exists:products,id',
@@ -45,7 +43,7 @@ class UpdatePurchaseRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'status.enum' => 'Invalid status value. Valid values are: '.
+            'status.enum' => 'Invalid status value. Valid values are: ' .
                 implode(', ', PurchaseStatusEnum::values()),
             'warehouse_id.required_if' => 'Warehouse is required when posting a purchase',
         ];
@@ -64,7 +62,10 @@ class UpdatePurchaseRequest extends FormRequest
                 return;
             }
 
-            $purchase = $this->route('purchase');
+            // Get the Purchase model (route parameter may be ID or model instance)
+            $purchaseId = $this->route('purchase');
+            $purchase = $purchaseId instanceof Purchase ? $purchaseId : Purchase::find($purchaseId);
+
             if (! $purchase) {
                 return;
             }
