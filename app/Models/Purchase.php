@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\MovementTypeEnum;
 use App\Enums\PurchaseStatusEnum;
 use App\Observers\PurchaseObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
@@ -43,5 +44,40 @@ class Purchase extends Model
     public function warehouse(): BelongsTo
     {
         return $this->belongsTo(Warehouse::class);
+    }
+
+    public function inventoryMovements(): HasMany
+    {
+        return $this->hasMany(InventoryMovement::class);
+    }
+
+    /**
+     * Check if this purchase has already created an inventory movement
+     */
+    public function hasInventoryMovement(): bool
+    {
+        return $this->inventoryMovements()
+            ->where('movement_type', MovementTypeEnum::In->value)
+            ->exists();
+    }
+
+    /**
+     * Get the original inventory movement (type='in') for this purchase
+     */
+    public function getOriginalInventoryMovement()
+    {
+        return $this->inventoryMovements()
+            ->where('movement_type', MovementTypeEnum::In->value)
+            ->first();
+    }
+
+    /**
+     * Check if inventory for this purchase has been reversed
+     */
+    public function hasInventoryReversed(): bool
+    {
+        return $this->inventoryMovements()
+            ->where('movement_type', MovementTypeEnum::Out->value)
+            ->exists();
     }
 }

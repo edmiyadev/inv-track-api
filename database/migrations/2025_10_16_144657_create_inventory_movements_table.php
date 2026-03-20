@@ -16,6 +16,7 @@ return new class extends Migration
             $table->enum('movement_type', ['in', 'out', 'transfer', 'adjustment']);
             $table->foreignId('origin_warehouse_id')->nullable()->constrained('warehouses')->onDelete('cascade');
             $table->foreignId('destination_warehouse_id')->nullable()->constrained('warehouses')->onDelete('cascade');
+            $table->foreignId('purchase_id')->nullable()->constrained('purchases')->onDelete('cascade');
             $table->text('notes')->nullable();
             $table->timestamps();
         });

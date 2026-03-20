@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateInventoryMovementRequest;
 use App\Interfaces\InventoryMovementServiceInterface;
-use App\Models\inventoryMovement;
+use App\Models\InventoryMovement;
 use App\Traits\Authorizes;
 
 class InventoryMovementController extends Controller
@@ -21,7 +21,7 @@ class InventoryMovementController extends Controller
      */
     public function index()
     {
-        $this->authorize('viewAny', inventoryMovement::class);
+        $this->authorize('viewAny', InventoryMovement::class);
 
         $inventoryMovements = $this->inventoryMovementService->listMovements();
 
@@ -64,7 +64,7 @@ class InventoryMovementController extends Controller
      */
     public function store(CreateInventoryMovementRequest $request)
     {
-        $this->authorize('create', inventoryMovement::class);
+        $this->authorize('create', InventoryMovement::class);
 
         $movement = $this->inventoryMovementService->createMovement($request->validated());
 

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\MovementTypeEnum;
 use App\Interfaces\InventoryStockServiceInterface;
 use App\Models\InventoryStock;
 
@@ -11,23 +12,26 @@ class InventoryStockService implements InventoryStockServiceInterface
         private readonly InventoryStock $inventoryStock
     ) {}
 
-    public function adjustStock(int $productId, int $quantity, string $movementType, array $data): void
+    public function adjustStock(int $productId, int $quantity, MovementTypeEnum|string $movementType, array $data): void
     {
-        switch ($movementType) {
-            case 'in':
+        // Convert string to enum if needed (for backwards compatibility)
+        $type = MovementTypeEnum::ensureEnum($movementType);
+
+        switch ($type) {
+            case MovementTypeEnum::In:
                 $this->incrementStock($data['destination_warehouse_id'], $productId, $quantity);
                 break;
 
-            case 'out':
+            case MovementTypeEnum::Out:
                 $this->decrementStock($data['origin_warehouse_id'], $productId, $quantity);
                 break;
 
-            case 'transfer':
+            case MovementTypeEnum::Transfer:
                 $this->decrementStock($data['origin_warehouse_id'], $productId, $quantity);
                 $this->incrementStock($data['destination_warehouse_id'], $productId, $quantity);
                 break;
 
-            case 'adjustment':
+            case MovementTypeEnum::Adjustment:
                 // Para ajustes, permitimos ajuste positivo o negativo
                 if ($quantity >= 0) {
                     $this->incrementStock($data['destination_warehouse_id'], $productId, abs($quantity));
@@ -37,7 +41,7 @@ class InventoryStockService implements InventoryStockServiceInterface
                 break;
 
             default:
-                throw new \InvalidArgumentException("type movement not found: $movementType");
+                throw new \InvalidArgumentException("Unknown movement type: {$type->value}");
         }
     }
 

@@ -97,7 +97,7 @@ class PurchaseController extends Controller
         return response([
             'status' => 'success',
             'message' => 'Purchase updated successfully',
-            'data' => $purchase,
+            'data' => $purchaseUpdated,
         ]);
     }
 

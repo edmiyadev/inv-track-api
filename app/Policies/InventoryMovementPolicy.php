@@ -2,7 +2,7 @@
 
 namespace App\Policies;
 
-use App\Models\inventoryMovement;
+use App\Models\InventoryMovement;
 use App\Models\User;
 
 class InventoryMovementPolicy
@@ -18,7 +18,7 @@ class InventoryMovementPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, inventoryMovement $inventoryMovement): bool
+    public function view(User $user, InventoryMovement $inventoryMovement): bool
     {
         return $user->can('inventory_movements.view');
     }
@@ -34,7 +34,7 @@ class InventoryMovementPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, inventoryMovement $inventoryMovement): bool
+    public function update(User $user, InventoryMovement $inventoryMovement): bool
     {
         return false;
     }
@@ -42,7 +42,7 @@ class InventoryMovementPolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, inventoryMovement $inventoryMovement): bool
+    public function delete(User $user, InventoryMovement $inventoryMovement): bool
     {
         return false;
     }
@@ -50,7 +50,7 @@ class InventoryMovementPolicy
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(User $user, inventoryMovement $inventoryMovement): bool
+    public function restore(User $user, InventoryMovement $inventoryMovement): bool
     {
         return false;
     }
@@ -58,7 +58,7 @@ class InventoryMovementPolicy
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, inventoryMovement $inventoryMovement): bool
+    public function forceDelete(User $user, InventoryMovement $inventoryMovement): bool
     {
         return false;
     }

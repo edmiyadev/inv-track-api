@@ -2,16 +2,15 @@
 
 namespace App\Services;
 
+use App\Enums\MovementTypeEnum;
 use App\Interfaces\InventoryMovementServiceInterface;
-use App\Models\inventoryMovement;
-use App\Models\inventoryMovementItem;
+use App\Models\InventoryMovement;
 use Illuminate\Support\Facades\DB;
 
 class InventoryMovementService implements InventoryMovementServiceInterface
 {
     public function __construct(
-        private readonly inventoryMovement $inventoryMovement,
-        // private readonly inventoryMovementItem $inventoryMovementItem,
+        private readonly InventoryMovement $inventoryMovement,
         private readonly InventoryStockService $inventoryStockService,
     ) {}
 
@@ -24,20 +23,24 @@ class InventoryMovementService implements InventoryMovementServiceInterface
      * 2. Creates InventoryMovementItem records (details)
      * 3. Calls InventoryStockService to update actual stock levels
      *
-     * @param  array  $data  Movement data (type, warehouses, items)
-     * @return inventoryMovement
+     * @param  array  $data  Movement data (type, warehouses, items, purchase_id)
+     * @return InventoryMovement
      *
      * @throws \Exception If transaction fails or stock validation fails
      */
-    public function createMovement(array $data)
+    public function createMovement(array $data): InventoryMovement
     {
         try {
             $movement = null;
 
             DB::transaction(function () use ($data, &$movement) {
+                // Cast movement_type to enum if it's a string
+                $movementType = MovementTypeEnum::ensureEnum($data['movement_type']);
+
                 // Step 1: Create movement record (audit trail)
                 $movement = $this->inventoryMovement->create([
-                    'movement_type' => $data['movement_type'],
+                    'purchase_id' => $data['purchase_id'] ?? null,
+                    'movement_type' => $movementType,
                     'origin_warehouse_id' => $data['origin_warehouse_id'] ?? null,
                     'destination_warehouse_id' => $data['destination_warehouse_id'] ?? null,
                     'notes' => $data['notes'] ?? null,
@@ -48,15 +51,15 @@ class InventoryMovementService implements InventoryMovementServiceInterface
                     $movement->items()->create([
                         'product_id' => $item['product_id'],
                         'quantity' => $item['quantity'],
-                        'unit_price' => $item['unit_price'],
-                        'total_price' => $item['quantity'] * $item['unit_price'],
+                        'unit_price' => $item['unit_price'] ?? 0,
+                        'total_price' => $item['quantity'] * ($item['unit_price'] ?? 0),
                     ]);
 
                     // Step 3: Update actual stock levels (single source of truth)
                     $this->inventoryStockService->adjustStock(
                         $item['product_id'],
                         $item['quantity'],
-                        $data['movement_type'],
+                        $movementType,
                         $data
                     );
                 }
@@ -68,6 +71,41 @@ class InventoryMovementService implements InventoryMovementServiceInterface
         }
     }
 
+    /**
+     * Create a reversal movement for a purchase cancellation
+     *
+     * @param  InventoryMovement  $originalMovement  The original 'in' movement to reverse
+     * @return InventoryMovement The reversal movement
+     *
+     * @throws \LogicException If movement type cannot be reversed
+     */
+    public function createReversalMovement(InventoryMovement $originalMovement): InventoryMovement
+    {
+        if (! $originalMovement->movement_type->isReversible()) {
+            throw new \LogicException(
+                "Cannot reverse movement type: {$originalMovement->movement_type->value}"
+            );
+        }
+
+        $reversalType = $originalMovement->movement_type->reverse();
+
+        // Build reversal data
+        $reversalData = [
+            'purchase_id' => $originalMovement->purchase_id,
+            'movement_type' => $reversalType,
+            'origin_warehouse_id' => $originalMovement->destination_warehouse_id,
+            'destination_warehouse_id' => $originalMovement->origin_warehouse_id,
+            'notes' => "Reversal of movement #{$originalMovement->id} - Purchase canceled",
+            'items' => $originalMovement->items->map(fn ($item) => [
+                'product_id' => $item->product_id,
+                'quantity' => $item->quantity,
+                'unit_price' => $item->unit_price,
+            ])->toArray(),
+        ];
+
+        return $this->createMovement($reversalData);
+    }
+
     public function getMovementById(int $id)
     {
         return $this->inventoryMovement->with('items')->find($id);
@@ -75,6 +113,6 @@ class InventoryMovementService implements InventoryMovementServiceInterface
 
     public function listMovements(array $filters = [])
     {
-        return $this->inventoryMovement->with('items')->get();
+        return $this->inventoryMovement->with('items')->paginate(15);
     }
 }
