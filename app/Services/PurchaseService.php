@@ -25,50 +25,31 @@ class PurchaseService implements PurchaseServiceInterface
     {
         $items = $data['items'] ?? [];
         $purchaseWithoutItems = Arr::except($data, ['items']);
-        $newPurchase = null;
+        $pruchase = null;
 
-        try {
-            DB::transaction(function () use (
-                $purchaseWithoutItems,
-                $items,
-                &$newPurchase,
-            ) {
-                $newPurchase = Purchase::create([
-                    ...$purchaseWithoutItems,
-                    'total_amount' => 0,
+        return DB::transaction(function () use ($purchaseWithoutItems, $items, &$purchase) {
+            $purchase = Purchase::create([
+                ...$purchaseWithoutItems,
+                'total_amount' => 0,
+            ]);
+
+            $totalAmount = 0;
+
+            foreach ($items as $item) {
+                $line = $purchase->items()->create([
+                    'product_id' => $item['product_id'],
+                    'quantity' => $item['quantity'],
+                    'unit_price' => $item['unit_price'],
+                    'total_price' => $item['quantity'] * $item['unit_price'],
                 ]);
 
-                $linesToInsert = [];
-                $totalAmount = 0;
+                $totalAmount += $line->total_price;
+            }
 
-                foreach ($items as $item) {
-                    $subtotal = $item['quantity'] * $item['unit_price'];
-                    $totalAmount += $subtotal;
+            $purchase->update(['total_amount' => $totalAmount]);
 
-                    $linesToInsert[] = [
-                        'purchase_id' => $newPurchase->id,
-                        'product_id' => $item['product_id'],
-                        'quantity' => $item['quantity'],
-                        'unit_price' => $item['unit_price'],
-                        'total_price' => $subtotal,
-                    ];
-                }
-                $newPurchase->items()->insert($linesToInsert);
-                $newPurchase->update(['total_amount' => $totalAmount]);
-
-                $this->inventoryMovementService->createMovement([
-                    'movement_type' => 'in',
-                    'destination_warehouse_id' => $newPurchase['warehouse_id'] ?? null,
-                    'items' => $items,
-                ]);
-
-                return $newPurchase->with('items');
-            });
-
-            return $newPurchase?->toArray();
-        } catch (\Throwable $th) {
-            return false;
-        }
+            return $purchase;
+        });
     }
 
     public function updatePurchase(Purchase $purchase, array $data)
@@ -81,53 +62,42 @@ class PurchaseService implements PurchaseServiceInterface
         $purchaseData = Arr::except($data, ['items']);
         $updatedPurchase = $purchase;
 
-        try {
-            $updatedPurchase = DB::transaction(function () use (
-                $purchase,
-                $purchaseData,
-                $items,
-            ) {
-                if (! empty($purchaseData)) {
-                    $purchase->update($purchaseData);
-                }
+        $updatedPurchase = DB::transaction(function () use ($purchase, $purchaseData, $items) {
+            if (! empty($purchaseData)) {
+                $purchase->update($purchaseData);
+            }
 
-                $totalAmount = $purchase->total_amount;
+            $itemIds = collect($items)->pluck('id')->filter()->all();
+            $purchase->items()->whereNotIn('id', $itemIds)->delete();
 
-                if (is_array($items)) {
-                    $purchase->items()->delete();
 
-                    $linesToInsert = [];
-                    $totalAmount = 0;
-
-                    foreach ($items as $item) {
-                        $quantity = $item['quantity'] ?? 0;
-                        $unitPrice = $item['unit_price'] ?? 0;
-                        $subtotal = $quantity * $unitPrice;
-                        $totalAmount += $subtotal;
-
-                        $linesToInsert[] = [
-                            'purchase_id' => $purchase->id,
-                            'product_id' => $item['product_id'],
-                            'quantity' => $quantity,
-                            'unit_price' => $unitPrice,
-                            'total_price' => $subtotal,
-                        ];
-                    }
-
-                    if (! empty($linesToInsert)) {
-                        $purchase->items()->insert($linesToInsert);
-                    }
-
-                    $purchase->update(['total_amount' => $totalAmount]);
-                }
-
+            if (!$items) {
+                $purchase->update(['total_amount' => 0]);
                 return $purchase->with('items');
-            });
+            }
 
-            return $updatedPurchase;
-        } catch (\Throwable $th) {
-            return false;
-        }
+            $totalAmount = 0;
+
+            foreach ($items as $item) {
+                $line = $purchase->items()->updateOrCreate(
+                    ['id' => $item['id'] ?? null],
+                    [
+                        'product_id' => $item['product_id'],
+                        'quantity' => $item['quantity'],
+                        'unit_price' => $item['unit_price'],
+                        'total_price' => $item['quantity'] * $item['unit_price'],
+                    ]
+                );
+
+                $totalAmount += $line->total_price;
+            }
+
+            $purchase->update(['total_amount' => $totalAmount]);
+
+            return $purchase->with('items');
+        });
+
+        return $updatedPurchase;
     }
 
     public function deletePurchase(Purchase $purchase)

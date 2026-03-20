@@ -11,7 +11,7 @@ class InventoryMovementService implements InventoryMovementServiceInterface
 {
     public function __construct(
         private readonly inventoryMovement $inventoryMovement,
-        private readonly inventoryMovementItem $inventoryMovementItem,
+        // private readonly inventoryMovementItem $inventoryMovementItem,
         private readonly InventoryStockService $inventoryStockService,
     ) {}
 
@@ -45,12 +45,11 @@ class InventoryMovementService implements InventoryMovementServiceInterface
 
                 // Step 2: Create movement items and update stock
                 foreach ($data['items'] as $item) {
-                    $this->inventoryMovementItem->create([
-                        'inventory_movement_id' => $movement->id,
+                    $movement->items()->create([
                         'product_id' => $item['product_id'],
                         'quantity' => $item['quantity'],
-                        'unit_cost' => $item['unit_price'],
-                        'total_cost' => $item['quantity'] * $item['unit_price'],
+                        'unit_price' => $item['unit_price'],
+                        'total_price' => $item['quantity'] * $item['unit_price'],
                     ]);
 
                     // Step 3: Update actual stock levels (single source of truth)

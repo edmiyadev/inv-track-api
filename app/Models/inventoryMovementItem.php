@@ -11,8 +11,8 @@ class inventoryMovementItem extends Model
         'inventory_movement_id',
         'product_id',
         'quantity',
-        'unit_cost',
-        'total_cost',
+        'unit_price',
+        'total_price',
     ];
 
     public function inventoryMovement(): BelongsTo
