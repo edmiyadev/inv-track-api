@@ -11,11 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('inventory_movements', function (Blueprint $table) {
+        Schema::create('sales', function (Blueprint $table) {
             $table->id();
-            $table->enum('movement_type', ['in', 'out', 'transfer', 'adjustment']);
-            $table->nullableMorphs('document'); // document_id, document_type
-            $table->text('notes')->nullable();
+            $table->foreignId('customer_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Vendedor
+            $table->string('status')->default('draft'); // draft, completed, cancelled
+            $table->decimal('total_amount', 15, 2)->default(0);
             $table->timestamps();
         });
     }
@@ -25,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('inventory_movements');
+        Schema::dropIfExists('sales');
     }
 };

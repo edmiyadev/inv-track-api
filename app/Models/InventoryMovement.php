@@ -4,16 +4,15 @@ namespace App\Models;
 
 use App\Enums\MovementTypeEnum;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class InventoryMovement extends Model
 {
     protected $fillable = [
-        'purchase_id',
         'movement_type',
-        'origin_warehouse_id',
-        'destination_warehouse_id',
+        'document_id',
+        'document_type',
         'notes',
     ];
 
@@ -26,18 +25,8 @@ class InventoryMovement extends Model
         return $this->hasMany(InventoryMovementItem::class);
     }
 
-    public function purchase(): BelongsTo
+    public function document(): MorphTo
     {
-        return $this->belongsTo(Purchase::class);
-    }
-
-    public function originWarehouse(): BelongsTo
-    {
-        return $this->belongsTo(Warehouse::class, 'origin_warehouse_id');
-    }
-
-    public function destinationWarehouse(): BelongsTo
-    {
-        return $this->belongsTo(Warehouse::class, 'destination_warehouse_id');
+        return $this->morphTo();
     }
 }

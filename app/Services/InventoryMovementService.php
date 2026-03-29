@@ -39,10 +39,9 @@ class InventoryMovementService implements InventoryMovementServiceInterface
 
                 // Step 1: Create movement record (audit trail)
                 $movement = $this->inventoryMovement->create([
-                    'purchase_id' => $data['purchase_id'] ?? null,
                     'movement_type' => $movementType,
-                    'origin_warehouse_id' => $data['origin_warehouse_id'] ?? null,
-                    'destination_warehouse_id' => $data['destination_warehouse_id'] ?? null,
+                    'document_id' => $data['document_id'] ?? null,
+                    'document_type' => $data['document_type'] ?? null,
                     'notes' => $data['notes'] ?? null,
                 ]);
 
@@ -72,9 +71,9 @@ class InventoryMovementService implements InventoryMovementServiceInterface
     }
 
     /**
-     * Create a reversal movement for a purchase cancellation
+     * Create a reversal movement for a document cancellation
      *
-     * @param  InventoryMovement  $originalMovement  The original 'in' movement to reverse
+     * @param  InventoryMovement  $originalMovement  The original movement to reverse
      * @return InventoryMovement The reversal movement
      *
      * @throws \LogicException If movement type cannot be reversed
@@ -90,18 +89,31 @@ class InventoryMovementService implements InventoryMovementServiceInterface
         $reversalType = $originalMovement->movement_type->reverse();
 
         // Build reversal data
+        // We need to swap origin and destination warehouses from the original data context
+        // This assumes the original data context is available or we reconstruct it
         $reversalData = [
-            'purchase_id' => $originalMovement->purchase_id,
+            'document_id' => $originalMovement->document_id,
+            'document_type' => $originalMovement->document_type,
             'movement_type' => $reversalType,
-            'origin_warehouse_id' => $originalMovement->destination_warehouse_id,
-            'destination_warehouse_id' => $originalMovement->origin_warehouse_id,
-            'notes' => "Reversal of movement #{$originalMovement->id} - Purchase canceled",
+            'notes' => "Reversal of movement #{$originalMovement->id}",
             'items' => $originalMovement->items->map(fn ($item) => [
                 'product_id' => $item->product_id,
                 'quantity' => $item->quantity,
                 'unit_price' => $item->unit_price,
             ])->toArray(),
         ];
+
+        // For reversal, we need to know the original warehouses
+        // If it was an 'In' movement to a destination, now it's an 'Out' from that destination
+        if ($originalMovement->movement_type === MovementTypeEnum::In) {
+            // How do we know which warehouse it was? 
+            // We should probably store the warehouse_id in the movement_items or keep it in the data
+            // Or extract it from the document (Purchase/Sale)
+            $document = $originalMovement->document;
+            if ($document instanceof \App\Models\Purchase) {
+                $reversalData['origin_warehouse_id'] = $document->warehouse_id;
+            }
+        }
 
         return $this->createMovement($reversalData);
     }

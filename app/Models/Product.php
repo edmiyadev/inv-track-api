@@ -18,17 +18,11 @@ class Product extends Model
         'description',
         'price',
         'product_category_id',
-        'supplier_id',
     ];
 
     public function productCategory(): BelongsTo
     {
         return $this->belongsTo(ProductCategory::class);
-    }
-
-    public function supplier(): BelongsTo
-    {
-        return $this->belongsTo(Supplier::class);
     }
 
     public function inventoryStocks(): HasMany

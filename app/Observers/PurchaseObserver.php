@@ -29,12 +29,23 @@ class PurchaseObserver
      */
     public function updating(Purchase $purchase): void
     {
-        // Check if status is being changed
+        $oldValue = $purchase->getOriginal('status');
+        $oldStatus = $oldValue instanceof PurchaseStatusEnum 
+            ? $oldValue 
+            : PurchaseStatusEnum::from($oldValue);
+
+        // Rule 1: Once Posted, NOTHING can be changed (status or attributes)
+        if ($oldStatus === PurchaseStatusEnum::Posted) {
+            throw new \DomainException(
+                "Purchase #{$purchase->id} is 'posted' and immutable. ".
+                "Use inventory adjustments to correct discrepancies."
+            );
+        }
+
+        // Rule 2: Validate state transitions from Draft
         if ($purchase->isDirty('status')) {
-            $oldStatus = PurchaseStatusEnum::from($purchase->getOriginal('status'));
             $newStatus = $purchase->status;
 
-            // Validate state transition
             if (! $oldStatus->canTransitionTo($newStatus)) {
                 throw new \DomainException($oldStatus->getTransitionErrorMessage($newStatus));
             }
@@ -54,7 +65,11 @@ class PurchaseObserver
         }
 
         // Get the old and new status values
-        $oldStatus = PurchaseStatusEnum::from($purchase->getOriginal('status'));
+        $oldValue = $purchase->getOriginal('status');
+        $oldStatus = $oldValue instanceof PurchaseStatusEnum 
+            ? $oldValue 
+            : PurchaseStatusEnum::from($oldValue);
+        
         $newStatus = $purchase->status;
 
         Log::info("Purchase #{$purchase->id} status changed from {$oldStatus->value} to {$newStatus->value}");
@@ -103,7 +118,8 @@ class PurchaseObserver
 
         // Create inventory movement (incoming stock)
         $this->inventoryMovementService->createMovement([
-            'purchase_id' => $purchase->id,
+            'document_id' => $purchase->id,
+            'document_type' => Purchase::class,
             'movement_type' => MovementTypeEnum::In,
             'destination_warehouse_id' => $purchase->warehouse_id,
             'notes' => "Purchase #{$purchase->id} posted",
@@ -172,21 +188,22 @@ class PurchaseObserver
         );
     }
 
+    public function deleting(Purchase $purchase): void
+    {
+        if ($purchase->status === PurchaseStatusEnum::Posted) {
+            throw new \DomainException(
+                "Cannot delete Purchase #{$purchase->id} as it is already 'posted'. ".
+                "Use credit notes or manual inventory adjustments for corrections."
+            );
+        }
+    }
+
     /**
      * Handle the Purchase "deleted" event.
      */
     public function deleted(Purchase $purchase): void
     {
-        // If purchase is deleted while posted, we might want to handle that
-        // For now, cascade delete will remove inventory_movements via FK constraint
-        // You might want to prevent deletion of posted purchases instead
-
-        if ($purchase->status === PurchaseStatusEnum::Posted) {
-            Log::warning(
-                "Purchase #{$purchase->id} deleted while posted, ".
-                'inventory movements will be cascade deleted'
-            );
-        }
+        // ... Log deleted logic
     }
 
     /**

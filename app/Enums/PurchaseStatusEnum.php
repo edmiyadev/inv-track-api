@@ -19,7 +19,7 @@ enum PurchaseStatusEnum: string
     {
         return match ($this) {
             self::Draft => in_array($targetStatus, [self::Posted, self::Canceled]),
-            self::Posted => $targetStatus === self::Canceled,
+            self::Posted => false, // Final state: cannot be modified or canceled
             self::Canceled => false, // Terminal state
         };
     }
@@ -33,7 +33,7 @@ enum PurchaseStatusEnum: string
     {
         return match ($this) {
             self::Draft => [self::Posted, self::Canceled],
-            self::Posted => [self::Canceled],
+            self::Posted => [],
             self::Canceled => [],
         };
     }

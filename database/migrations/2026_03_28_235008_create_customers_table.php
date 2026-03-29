@@ -11,11 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('inventory_movements', function (Blueprint $table) {
+        Schema::create('customers', function (Blueprint $table) {
             $table->id();
-            $table->enum('movement_type', ['in', 'out', 'transfer', 'adjustment']);
-            $table->nullableMorphs('document'); // document_id, document_type
-            $table->text('notes')->nullable();
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->string('tax_id')->nullable(); // RUT/NIT/VAT
+            $table->string('phone')->nullable();
             $table->timestamps();
         });
     }
@@ -25,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('inventory_movements');
+        Schema::dropIfExists('customers');
     }
 };

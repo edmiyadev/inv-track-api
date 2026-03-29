@@ -18,7 +18,6 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->decimal('price', 10, 2);
             $table->foreignId('product_category_id')->constrained('product_categories')->onDelete('cascade');
-            $table->foreignId('supplier_id')->constrained('suppliers')->onDelete('cascade');
             $table->timestamps();
         });
     }
