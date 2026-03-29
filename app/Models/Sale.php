@@ -2,12 +2,16 @@
 
 namespace App\Models;
 
+use App\Enums\SaleStatusEnum;
+use App\Observers\SaleObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
+#[ObservedBy([SaleObserver::class])]
 class Sale extends Model
 {
     use HasFactory;
@@ -15,13 +19,23 @@ class Sale extends Model
     protected $fillable = [
         'customer_id',
         'user_id',
+        'warehouse_id',
         'status',
         'total_amount',
+    ];
+
+    protected $casts = [
+        'status' => SaleStatusEnum::class,
     ];
 
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    public function warehouse(): BelongsTo
+    {
+        return $this->belongsTo(Warehouse::class);
     }
 
     public function user(): BelongsTo

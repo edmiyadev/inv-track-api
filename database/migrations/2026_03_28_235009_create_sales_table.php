@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('customer_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Vendedor
+            $table->foreignId('warehouse_id')->constrained()->onDelete('cascade');
             $table->string('status')->default('draft'); // draft, completed, cancelled
             $table->decimal('total_amount', 15, 2)->default(0);
             $table->timestamps();

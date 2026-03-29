@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\InventoryMovementController;
 use App\Http\Controllers\InventoryStockController;
 use App\Http\Controllers\PermissionController;
@@ -8,6 +9,7 @@ use App\Http\Controllers\ProductCategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\SaleController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WarehouseController;
@@ -49,4 +51,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('products', ProductController::class);
     Route::apiResource('categories', ProductCategoryController::class);
     Route::apiResource('warehouses', WarehouseController::class);
+    
+    // Sales Module
+    Route::apiResource('customers', CustomerController::class);
+    Route::apiResource('sales', SaleController::class)->only(['index', 'store', 'show']);
+    Route::patch('sales/{id}/status', [SaleController::class, 'updateStatus']);
 });

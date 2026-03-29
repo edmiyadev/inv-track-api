@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Interfaces\AuthServiceInterface;
+use App\Interfaces\CustomerServiceInterface;
 use App\Interfaces\InventoryMovementServiceInterface;
 use App\Interfaces\InventoryStockServiceInterface;
 use App\Interfaces\PermissionServiceInterface;
@@ -10,12 +11,14 @@ use App\Interfaces\ProductCategoryServiceInterface;
 use App\Interfaces\ProductServiceInterface;
 use App\Interfaces\PurchaseServiceInterface;
 use App\Interfaces\RoleServiceInterface;
+use App\Interfaces\SaleServiceInterface;
 use App\Interfaces\SupplierServiceInterface;
 use App\Interfaces\UserServiceInterface;
 use App\Interfaces\WarehouseServiceInterface;
 use App\Models\Supplier;
 use App\Policies\SupplierPolicy;
 use App\Services\AuthService;
+use App\Services\CustomerService;
 use App\Services\InventoryMovementService;
 use App\Services\InventoryStockService;
 use App\Services\PermissionService;
@@ -23,6 +26,7 @@ use App\Services\ProductCategoryService;
 use App\Services\ProductService;
 use App\Services\PurchaseService;
 use App\Services\RoleService;
+use App\Services\SaleService;
 use App\Services\SupplierService;
 use App\Services\UserService;
 use App\Services\WarehouseService;
@@ -47,6 +51,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(InventoryStockServiceInterface::class, InventoryStockService::class);
         $this->app->bind(InventoryMovementServiceInterface::class, InventoryMovementService::class);
         $this->app->bind(PurchaseServiceInterface::class, PurchaseService::class);
+        $this->app->bind(CustomerServiceInterface::class, CustomerService::class);
+        $this->app->bind(SaleServiceInterface::class, SaleService::class);
     }
 
     /**
