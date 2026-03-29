@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreSaleRequest;
+use App\Http\Requests\UpdateSaleRequest;
 use App\Http\Requests\UpdateSaleStatusRequest;
 use App\Interfaces\SaleServiceInterface;
 use App\Models\Sale;
@@ -12,7 +13,9 @@ class SaleController extends Controller
 {
     use Authorizes;
 
-    public function __construct(private readonly SaleServiceInterface $saleService) {}
+    public function __construct(
+        private readonly SaleServiceInterface $saleService
+    ) {}
 
     public function index()
     {
@@ -64,6 +67,35 @@ class SaleController extends Controller
         ]);
     }
 
+    public function update(UpdateSaleRequest $request, int|string $id)
+    {
+        $sale = $this->saleService->getSaleById($id);
+        $this->authorize('update', $sale);
+
+        if (! $sale) {
+            return response([
+                'status' => 'error',
+                'message' => 'Sale not found',
+            ], 404);
+        }
+
+        $saleUpdated = $this->saleService->updateSale($sale, $request->validated());
+
+        if (! $saleUpdated) {
+            return response([
+                'status' => 'error',
+                'message' => 'Error updating sale',
+            ], 500);
+        }
+
+
+        return response([
+            'status' => 'success',
+            'message' => 'Sale updated successfully',
+            'data' => $saleUpdated,
+        ]);
+    }
+
     public function updateStatus(UpdateSaleStatusRequest $request, int|string $id)
     {
         $sale = $this->saleService->getSaleById($id);
@@ -78,10 +110,42 @@ class SaleController extends Controller
 
         $saleUpdated = $this->saleService->updateSaleStatus($sale, $request->validated()['status']);
 
+        if (! $saleUpdated) {
+            return response([
+                'status' => 'error',
+                'message' => 'Error updating sale status',
+            ], 500);
+        }
+
         return response([
             'status' => 'success',
             'message' => 'Sale status updated successfully',
             'data' => $saleUpdated,
+        ]);
+    }
+
+    public function destroy(int|string $id)
+    {
+        $sale = $this->saleService->getSaleById($id);
+        $this->authorize('delete', $sale);
+
+        if (! $sale) {
+            return response([
+                'status' => 'error',
+                'message' => 'Sale not found',
+            ], 404);
+        }
+
+        if (! $this->saleService->deleteSale($sale)) {
+            return response([
+                'status' => 'error',
+                'message' => 'Error deleting purchase',
+            ], 500);
+        }
+
+        return response([
+            'status' => 'success',
+            'message' => 'Sale deleted successfully',
         ]);
     }
 }

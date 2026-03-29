@@ -54,6 +54,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
     
     // Sales Module
     Route::apiResource('customers', CustomerController::class);
-    Route::apiResource('sales', SaleController::class)->only(['index', 'store', 'show']);
+    Route::apiResource('sales', SaleController::class);
     Route::patch('sales/{id}/status', [SaleController::class, 'updateStatus']);
 });

@@ -17,7 +17,6 @@ class SaleService implements SaleServiceInterface
         return DB::transaction(function () use ($data) {
             $totalAmount = 0;
 
-            // 1. Crear la cabecera de la venta
             $sale = $this->sale->create([
                 'customer_id' => $data['customer_id'],
                 'user_id' => $data['user_id'] ?? auth()->id(),
@@ -26,14 +25,12 @@ class SaleService implements SaleServiceInterface
                 'total_amount' => 0,
             ]);
 
-            // 2. Crear los ítems de venta
             foreach ($data['items'] as $item) {
                 $product = Product::findOrFail($item['product_id']);
                 
                 $unitPrice = $item['unit_price'] ?? $product->price;
                 $quantity = $item['quantity'];
                 
-                // Impuestos inmutables (ej: 19% IVA)
                 $taxPercentage = $item['tax_percentage'] ?? 19.00;
                 $taxAmount = ($unitPrice * $quantity) * ($taxPercentage / 100);
                 $subtotal = ($unitPrice * $quantity) + $taxAmount;
@@ -50,8 +47,52 @@ class SaleService implements SaleServiceInterface
                 $totalAmount += $subtotal;
             }
 
-            // 3. Actualizar el total de la venta
             $sale->update(['total_amount' => $totalAmount]);
+
+            return $sale->load(['items', 'customer', 'warehouse']);
+        });
+    }
+
+    public function updateSale(Sale $sale, array $data): Sale
+    {
+        if ($sale->status !== SaleStatusEnum::Draft) {
+            throw new \DomainException("Cannot update sale #{$sale->id} because it is not in 'draft' status.");
+        }
+
+        return DB::transaction(function () use ($sale, $data) {
+            $sale->update([
+                'customer_id' => $data['customer_id'] ?? $sale->customer_id,
+                'warehouse_id' => $data['warehouse_id'] ?? $sale->warehouse_id,
+                'user_id' => $data['user_id'] ?? $sale->user_id,
+            ]);
+
+            if (isset($data['items'])) {
+                $sale->items()->delete();
+                $totalAmount = 0;
+
+                foreach ($data['items'] as $item) {
+                    $product = Product::findOrFail($item['product_id']);
+                    $unitPrice = $item['unit_price'] ?? $product->price;
+                    $quantity = $item['quantity'];
+                    
+                    $taxPercentage = $item['tax_percentage'] ?? 19.00;
+                    $taxAmount = ($unitPrice * $quantity) * ($taxPercentage / 100);
+                    $subtotal = ($unitPrice * $quantity) + $taxAmount;
+
+                    $sale->items()->create([
+                        'product_id' => $product->id,
+                        'quantity' => $quantity,
+                        'unit_price' => $unitPrice,
+                        'tax_percentage' => $taxPercentage,
+                        'tax_amount' => $taxAmount,
+                        'subtotal' => $subtotal,
+                    ]);
+
+                    $totalAmount += $subtotal;
+                }
+
+                $sale->update(['total_amount' => $totalAmount]);
+            }
 
             return $sale->load(['items', 'customer', 'warehouse']);
         });
@@ -73,5 +114,14 @@ class SaleService implements SaleServiceInterface
     public function getAllSales()
     {
         return $this->sale->with(['customer', 'warehouse'])->get();
+    }
+
+    public function deleteSale(Sale $sale): bool
+    {
+        if ($sale->status !== SaleStatusEnum::Draft) {
+            throw new \DomainException("Cannot delete sale #{$sale->id} because it is not in 'draft' status.");
+        }
+
+        return $sale->delete();
     }
 }
