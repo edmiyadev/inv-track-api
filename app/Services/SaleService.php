@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Interfaces\SaleServiceInterface;
 use App\Models\Sale;
 use App\Models\Product;
+use App\Models\Tax;
 use Illuminate\Support\Facades\DB;
 use App\Enums\SaleStatusEnum;
 
@@ -31,12 +32,22 @@ class SaleService implements SaleServiceInterface
                 $unitPrice = $item['unit_price'] ?? $product->price;
                 $quantity = $item['quantity'];
                 
-                $taxPercentage = $item['tax_percentage'] ?? 19.00;
+                $taxId = $item['tax_id'] ?? $product->tax_id ?? null;
+                $taxPercentage = 0;
+                
+                if ($taxId) {
+                    $tax = Tax::find($taxId);
+                    $taxPercentage = $tax ? $tax->percentage : 0;
+                } else {
+                    $taxPercentage = $item['tax_percentage'] ?? 19.00; // Default fallback
+                }
+
                 $taxAmount = ($unitPrice * $quantity) * ($taxPercentage / 100);
                 $subtotal = ($unitPrice * $quantity) + $taxAmount;
 
                 $sale->items()->create([
                     'product_id' => $product->id,
+                    'tax_id' => $taxId,
                     'quantity' => $quantity,
                     'unit_price' => $unitPrice,
                     'tax_percentage' => $taxPercentage,
@@ -75,12 +86,22 @@ class SaleService implements SaleServiceInterface
                     $unitPrice = $item['unit_price'] ?? $product->price;
                     $quantity = $item['quantity'];
                     
-                    $taxPercentage = $item['tax_percentage'] ?? 19.00;
+                    $taxId = $item['tax_id'] ?? $product->tax_id ?? null;
+                    $taxPercentage = 0;
+
+                    if ($taxId) {
+                        $tax = Tax::find($taxId);
+                        $taxPercentage = $tax ? $tax->percentage : 0;
+                    } else {
+                        $taxPercentage = $item['tax_percentage'] ?? 19.00;
+                    }
+
                     $taxAmount = ($unitPrice * $quantity) * ($taxPercentage / 100);
                     $subtotal = ($unitPrice * $quantity) + $taxAmount;
 
                     $sale->items()->create([
                         'product_id' => $product->id,
+                        'tax_id' => $taxId,
                         'quantity' => $quantity,
                         'unit_price' => $unitPrice,
                         'tax_percentage' => $taxPercentage,
@@ -100,7 +121,7 @@ class SaleService implements SaleServiceInterface
 
     public function getSaleById(int|string $id): ?Sale
     {
-        return $this->sale->with(['items.product', 'customer', 'warehouse', 'user'])->find($id);
+        return $this->sale->with(['items.product', 'customer', 'warehouse', 'user', 'items.tax'])->find($id);
     }
 
     public function updateSaleStatus(Sale $sale, string $status): Sale

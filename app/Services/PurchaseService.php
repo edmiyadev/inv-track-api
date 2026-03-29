@@ -6,6 +6,8 @@ use App\Enums\PurchaseStatusEnum;
 use App\Interfaces\PurchaseServiceInterface;
 use App\Models\Purchase;
 use App\Models\PurchaseItem;
+use App\Models\Product;
+use App\Models\Tax;
 use Illuminate\Support\Facades\DB;
 
 class PurchaseService implements PurchaseServiceInterface
@@ -19,7 +21,7 @@ class PurchaseService implements PurchaseServiceInterface
 
     public function getPurchaseById(int|string $purchaseId): ?Purchase
     {
-        return $this->purchase->with(['items.product', 'supplier', 'warehouse'])->find($purchaseId);
+        return $this->purchase->with(['items.product', 'supplier', 'warehouse', 'items.tax'])->find($purchaseId);
     }
 
     public function createPurchase(array $data): ?Purchase
@@ -37,12 +39,21 @@ class PurchaseService implements PurchaseServiceInterface
             ]);
 
             foreach ($data['items'] as $item) {
-                $taxPercentage = $item['tax_percentage'] ?? 0;
+                $product = Product::find($item['product_id']);
+                $taxId = $item['tax_id'] ?? $product->tax_id ?? null;
+                $taxPercentage = 0;
+                
+                if ($taxId) {
+                    $tax = Tax::find($taxId);
+                    $taxPercentage = $tax ? $tax->percentage : 0;
+                }
+
                 $taxAmount = ($item['unit_price'] * $item['quantity']) * ($taxPercentage / 100);
                 $totalPrice = ($item['unit_price'] * $item['quantity']) + $taxAmount;
 
                 $purchase->items()->create([
                     'product_id' => $item['product_id'],
+                    'tax_id' => $taxId,
                     'quantity' => $item['quantity'],
                     'unit_price' => $item['unit_price'],
                     'tax_percentage' => $taxPercentage,
@@ -81,12 +92,21 @@ class PurchaseService implements PurchaseServiceInterface
                 $totalAmount = 0;
 
                 foreach ($data['items'] as $item) {
-                    $taxPercentage = $item['tax_percentage'] ?? 0;
+                    $product = Product::find($item['product_id']);
+                    $taxId = $item['tax_id'] ?? $product->tax_id ?? null;
+                    $taxPercentage = 0;
+                    
+                    if ($taxId) {
+                        $tax = Tax::find($taxId);
+                        $taxPercentage = $tax ? $tax->percentage : 0;
+                    }
+
                     $taxAmount = ($item['unit_price'] * $item['quantity']) * ($taxPercentage / 100);
                     $totalPrice = ($item['unit_price'] * $item['quantity']) + $taxAmount;
 
                     $purchase->items()->create([
                         'product_id' => $item['product_id'],
+                        'tax_id' => $taxId,
                         'quantity' => $item['quantity'],
                         'unit_price' => $item['unit_price'],
                         'tax_percentage' => $taxPercentage,

@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('purchase_id')->constrained('purchases')->onDelete('cascade');
             $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
+            $table->foreignId('tax_id')->nullable()->constrained('taxes')->onDelete('set null');
             $table->integer('quantity');
             $table->decimal('unit_price', 15, 2);
             $table->decimal('tax_percentage', 5, 2)->default(0);

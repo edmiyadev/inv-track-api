@@ -56,4 +56,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('customers', CustomerController::class);
     Route::apiResource('sales', SaleController::class);
     Route::patch('sales/{id}/status', [SaleController::class, 'updateStatus']);
+    
+    // Taxes Module
+    Route::apiResource('taxes', \App\Http\Controllers\TaxController::class);
 });

@@ -13,10 +13,9 @@ use App\Interfaces\PurchaseServiceInterface;
 use App\Interfaces\RoleServiceInterface;
 use App\Interfaces\SaleServiceInterface;
 use App\Interfaces\SupplierServiceInterface;
+use App\Interfaces\TaxServiceInterface;
 use App\Interfaces\UserServiceInterface;
 use App\Interfaces\WarehouseServiceInterface;
-use App\Models\Supplier;
-use App\Policies\SupplierPolicy;
 use App\Services\AuthService;
 use App\Services\CustomerService;
 use App\Services\InventoryMovementService;
@@ -28,6 +27,7 @@ use App\Services\PurchaseService;
 use App\Services\RoleService;
 use App\Services\SaleService;
 use App\Services\SupplierService;
+use App\Services\TaxService;
 use App\Services\UserService;
 use App\Services\WarehouseService;
 use Illuminate\Support\Facades\Gate;
@@ -53,6 +53,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(PurchaseServiceInterface::class, PurchaseService::class);
         $this->app->bind(CustomerServiceInterface::class, CustomerService::class);
         $this->app->bind(SaleServiceInterface::class, SaleService::class);
+        $this->app->bind(TaxServiceInterface::class, TaxService::class);
     }
 
     /**

@@ -17,6 +17,7 @@ enum ModelPermissionEnum: string
     case PURCHASE = 'purchases';
     case SALE = 'sales';
     case CUSTOMER = 'customers';
+    case TAX = 'taxes';
     case INVENTORY_STOCK = 'inventory_stocks';
     case INVENTORY_MOVEMENT = 'inventory_movements';
 }
