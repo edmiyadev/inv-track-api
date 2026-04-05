@@ -11,7 +11,7 @@ class TaxService implements TaxServiceInterface
 
     public function getAllTaxes()
     {
-        return $this->tax->all();
+        return $this->tax->orderBy('created_at', 'asc')->paginate(request()->per_page ?? 10);
     }
 
     public function getTaxById(int|string $id): ?Tax
