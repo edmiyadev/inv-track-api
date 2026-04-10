@@ -9,7 +9,7 @@ Asegúrate de tener instalados los siguientes componentes en tu sistema:
 - [PHP](https://www.php.net/) 8.2 o superior
 - [Composer](https://getcomposer.org/)
 - [Node.js](https://nodejs.org/) y NPM
-- [Docker](https://www.docker.com/) (para la base de datos PostgreSQL)
+- [Docker](https://www.docker.com/) y Docker Compose
 
 ## Instalación y Configuración
 
@@ -22,17 +22,24 @@ git clone <URL_DEL_REPOSITORIO>
 cd inv-track-api
 ```
 
-### 2. Iniciar la Base de Datos
-
-El proyecto incluye un archivo `docker-compose.yml` para levantar la base de datos PostgreSQL necesaria. Asegúrate de tener Docker Desktop (o el servicio de Docker) corriendo.
+### 2. Configurar variables de entorno
 
 ```bash
-docker-compose up -d
+cp .env.example .env
 ```
 
-Esto iniciará un contenedor con PostgreSQL expuesto en el puerto definido en tu archivo `.env` (o el puerto 5432 por defecto).
+Asegúrate de que las variables de base de datos sean coherentes con Docker:
 
-### 3. Instalación Automática
+```env
+DB_CONNECTION=pgsql
+DB_HOST=db
+DB_PORT=5432
+DB_DATABASE=laravel
+DB_USERNAME=postgres
+DB_PASSWORD=password
+```
+
+### 3. Instalación Automática (sin Docker para la app)
 
 El proyecto cuenta con un script automatizado para instalar dependencias y configurar el entorno. Una vez que la base de datos esté corriendo, ejecuta:
 
@@ -48,7 +55,7 @@ Este comando realizará las siguientes acciones:
 - Instalará las dependencias de Node (NPM).
 - Compilará los archivos del frontend.
 
-### 4. Instalación Manual (Alternativa)
+### 4. Instalación Manual (Alternativa sin Docker para la app)
 
 Si prefieres ejecutar los pasos uno a uno:
 
@@ -68,26 +75,63 @@ npm install
 npm run build
 ```
 
-## Ejecución del Proyecto
+## Levantar con Docker (Desarrollo)
 
-Para iniciar el entorno de desarrollo local, utiliza el siguiente comando:
+Usa `compose.dev.yaml` para correr app + nginx + postgres en modo desarrollo.
 
 ```bash
-composer run dev
+docker compose -f compose.dev.yaml up -d --build
 ```
 
-Este comando utilizará `concurrently` para ejecutar simultáneamente:
-- El servidor de Laravel (`php artisan serve`) en `http://localhost:8000`
-- El listener de colas (`php artisan queue:listen`)
-- El servidor de desarrollo de Vite (`npm run dev`)
-- Logs de Pail (`php artisan pail`)
+Servicios en desarrollo:
+- App Laravel (PHP-FPM): `app`
+- Nginx: `http://localhost:8000`
+- PostgreSQL: `localhost:5432`
 
-## Estructura de Docker
+Comandos útiles:
 
-El archivo `docker-compose.yml` levanta el siguiente servicio:
+```bash
+# Ver estado
+docker compose -f compose.dev.yaml ps
 
-- **db**: Base de datos PostgreSQL 14.3.
-  - Puertos: `5432` (o el definido en `DB_PORT`)
-  - Volúmen: `postgres_data` para persistencia de datos.
+# Ver logs
+docker compose -f compose.dev.yaml logs -f
 
-Asegúrate de que las credenciales en tu archivo `.env` coincidan con las esperadas por Docker si realizas cambios manuales. Por defecto usa los valores definidos en `docker-compose.yml` o en las variables de entorno.
+# Ejecutar migraciones
+docker compose -f compose.dev.yaml exec app php artisan migrate
+
+# Detener entorno
+docker compose -f compose.dev.yaml down
+```
+
+## Levantar con Docker (Producción)
+
+Usa `compose.prod.yaml` para correr app + nginx + postgres en configuración de producción.
+
+```bash
+docker compose -f compose.prod.yaml up -d --build
+```
+
+Puertos por defecto en producción:
+- HTTP: `80`
+- HTTPS: `443`
+
+Puedes cambiarlos con variables:
+
+```env
+APP_PORT=80
+APP_SSL_PORT=443
+```
+
+Comandos útiles:
+
+```bash
+# Ver estado
+docker compose -f compose.prod.yaml ps
+
+# Ver logs
+docker compose -f compose.prod.yaml logs -f
+
+# Detener entorno
+docker compose -f compose.prod.yaml down
+```
