@@ -987,7 +987,7 @@ async function showMovementDetail(movementId) {
       "id": 3,
       "name": "Tech Supplies Inc",
       "email": "sales@techsupplies.com",
-      "phone": "555-1234"
+      "phone_number": "555-1234"
     },
     "warehouse": {
       "id": 2,
@@ -1306,7 +1306,7 @@ function PurchaseForm() {
       "id": 3,
       "name": "Tech Supplies Inc",
       "email": "sales@techsupplies.com",
-      "phone": "555-1234",
+      "phone_number": "555-1234",
       "address": "123 Tech Street"
     },
     "warehouse": {

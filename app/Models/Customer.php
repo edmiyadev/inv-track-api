@@ -14,7 +14,7 @@ class Customer extends Model
         'name',
         'email',
         'tax_id',
-        'phone',
+        'phone_number',
     ];
 
     public function sales(): HasMany

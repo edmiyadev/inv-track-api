@@ -34,6 +34,7 @@ class UpdatePurchaseRequest extends FormRequest
             'items.*.product_id' => 'required_with:items|exists:products,id',
             'items.*.quantity' => 'required_with:items|integer|min:1',
             'items.*.unit_price' => 'required_with:items|numeric|min:0',
+            'items.*.tax_id' => 'required_with:items|exists:taxes,id',
         ];
     }
 }

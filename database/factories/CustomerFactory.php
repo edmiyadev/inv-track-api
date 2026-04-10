@@ -12,7 +12,7 @@ class CustomerFactory extends Factory
             'name' => $this->faker->name(),
             'email' => $this->faker->unique()->safeEmail(),
             'tax_id' => $this->faker->unique()->numerify('#########'),
-            'phone' => $this->faker->phoneNumber(),
+            'phone_number' => $this->faker->phoneNumber(),
         ];
     }
 }

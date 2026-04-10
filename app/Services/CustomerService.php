@@ -27,7 +27,7 @@ class CustomerService implements CustomerServiceInterface
 
     public function getAllCustomers()
     {
-        return $this->customer->all();
+        return $this->customer->orderBy('created_at', 'desc')->paginate(request()->per_page ?? 10);
     }
 
     public function deleteCustomer(Customer $customer): bool
