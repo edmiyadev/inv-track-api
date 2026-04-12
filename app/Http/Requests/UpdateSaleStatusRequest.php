@@ -17,7 +17,7 @@ class UpdateSaleStatusRequest extends FormRequest
     {
         return [
             'status' => ['required', Rule::in([
-                SaleStatusEnum::Completed->value,
+                SaleStatusEnum::Posted->value,
                 SaleStatusEnum::Canceled->value
             ])],
         ];

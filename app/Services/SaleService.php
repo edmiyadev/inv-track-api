@@ -2,39 +2,51 @@
 
 namespace App\Services;
 
+use App\Enums\SaleStatusEnum;
 use App\Interfaces\SaleServiceInterface;
-use App\Models\Sale;
 use App\Models\Product;
+use App\Models\Sale;
 use App\Models\Tax;
 use Illuminate\Support\Facades\DB;
-use App\Enums\SaleStatusEnum;
 
 class SaleService implements SaleServiceInterface
 {
     public function __construct(private readonly Sale $sale) {}
 
-    public function createSale(array $data): Sale
+    public function getAllSales()
+    {
+        return $this->sale->with(['customer', 'warehouse'])->get();
+    }
+
+    public function getSaleById(int|string $id): ?Sale
+    {
+        return $this->sale->with(['items.product', 'customer', 'warehouse', 'user', 'items.tax'])->find($id);
+    }
+
+    public function createSale(array $data): ?Sale
     {
         return DB::transaction(function () use ($data) {
             $totalAmount = 0;
 
             $sale = $this->sale->create([
+                'user_id' => auth()->id(),
                 'customer_id' => $data['customer_id'],
-                'user_id' => $data['user_id'] ?? auth()->id(),
                 'warehouse_id' => $data['warehouse_id'],
                 'status' => SaleStatusEnum::Draft,
+                'date' => $data['date'] ?? now(),
+                'notes' => $data['notes'] ?? null,
                 'total_amount' => 0,
             ]);
 
             foreach ($data['items'] as $item) {
                 $product = Product::findOrFail($item['product_id']);
-                
+
                 $unitPrice = $item['unit_price'] ?? $product->price;
                 $quantity = $item['quantity'];
-                
+
                 $taxId = $item['tax_id'] ?? $product->tax_id ?? null;
                 $taxPercentage = 0;
-                
+
                 if ($taxId) {
                     $tax = Tax::find($taxId);
                     $taxPercentage = $tax ? $tax->percentage : 0;
@@ -64,7 +76,7 @@ class SaleService implements SaleServiceInterface
         });
     }
 
-    public function updateSale(Sale $sale, array $data): Sale
+    public function updateSale(Sale $sale, array $data): ?Sale
     {
         if ($sale->status !== SaleStatusEnum::Draft) {
             throw new \DomainException("Cannot update sale #{$sale->id} because it is not in 'draft' status.");
@@ -74,7 +86,8 @@ class SaleService implements SaleServiceInterface
             $sale->update([
                 'customer_id' => $data['customer_id'] ?? $sale->customer_id,
                 'warehouse_id' => $data['warehouse_id'] ?? $sale->warehouse_id,
-                'user_id' => $data['user_id'] ?? $sale->user_id,
+                'date' => $data['date'] ?? $sale->date,
+                'notes' => $data['notes'] ?? $sale->notes,
             ]);
 
             if (isset($data['items'])) {
@@ -85,7 +98,7 @@ class SaleService implements SaleServiceInterface
                     $product = Product::findOrFail($item['product_id']);
                     $unitPrice = $item['unit_price'] ?? $product->price;
                     $quantity = $item['quantity'];
-                    
+
                     $taxId = $item['tax_id'] ?? $product->tax_id ?? null;
                     $taxPercentage = 0;
 
@@ -119,22 +132,13 @@ class SaleService implements SaleServiceInterface
         });
     }
 
-    public function getSaleById(int|string $id): ?Sale
+    public function updateSaleStatus(Sale $sale, string $status): ?Sale
     {
-        return $this->sale->with(['items.product', 'customer', 'warehouse', 'user', 'items.tax'])->find($id);
-    }
+         return DB::transaction(function () use ($sale, $status) {
+            $sale->update(['status' => $status]);
 
-    public function updateSaleStatus(Sale $sale, string $status): Sale
-    {
-        $sale->status = SaleStatusEnum::from($status);
-        $sale->save();
-
-        return $sale;
-    }
-
-    public function getAllSales()
-    {
-        return $this->sale->with(['customer', 'warehouse'])->get();
+            return $sale->load(['items.product', 'supplier', 'warehouse']);
+        });
     }
 
     public function deleteSale(Sale $sale): bool

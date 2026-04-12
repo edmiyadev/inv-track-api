@@ -17,15 +17,18 @@ class Sale extends Model
     use HasFactory;
 
     protected $fillable = [
-        'customer_id',
         'user_id',
+        'customer_id',
         'warehouse_id',
-        'status',
         'total_amount',
+        'date',
+        'status',
+        'notes',
     ];
 
     protected $casts = [
         'status' => SaleStatusEnum::class,
+        'date' => 'datetime',
     ];
 
     public function customer(): BelongsTo

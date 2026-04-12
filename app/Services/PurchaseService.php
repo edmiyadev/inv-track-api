@@ -29,6 +29,7 @@ class PurchaseService implements PurchaseServiceInterface
             $totalAmount = 0;
 
             $purchase = $this->purchase->create([
+                'user_id' => auth()->id(),
                 'supplier_id' => $data['supplier_id'],
                 'warehouse_id' => $data['warehouse_id'],
                 'status' => PurchaseStatusEnum::Draft,
@@ -41,7 +42,7 @@ class PurchaseService implements PurchaseServiceInterface
                 $product = Product::find($item['product_id']);
                 $taxId = $item['tax_id'] ?? $product->tax_id ?? null;
                 $taxPercentage = 0;
-                
+
                 if ($taxId) {
                     $tax = Tax::find($taxId);
                     $taxPercentage = $tax ? $tax->percentage : 0;
@@ -94,7 +95,7 @@ class PurchaseService implements PurchaseServiceInterface
                     $product = Product::find($item['product_id']);
                     $taxId = $item['tax_id'] ?? $product->tax_id ?? null;
                     $taxPercentage = 0;
-                    
+
                     if ($taxId) {
                         $tax = Tax::find($taxId);
                         $taxPercentage = $tax ? $tax->percentage : 0;
@@ -123,15 +124,6 @@ class PurchaseService implements PurchaseServiceInterface
         });
     }
 
-    public function deletePurchase(Purchase $purchase): bool
-    {
-        if ($purchase->status !== PurchaseStatusEnum::Draft) {
-            throw new \DomainException("Cannot delete purchase #{$purchase->id} because it is not in 'draft' status.");
-        }
-
-        return $purchase->delete();
-    }
-
     public function updatePurchaseStatus(Purchase $purchase, string $status): ?Purchase
     {
         return DB::transaction(function () use ($purchase, $status) {
@@ -139,5 +131,14 @@ class PurchaseService implements PurchaseServiceInterface
 
             return $purchase->load(['items.product', 'supplier', 'warehouse']);
         });
+    }
+
+    public function deletePurchase(Purchase $purchase): bool
+    {
+        if ($purchase->status !== PurchaseStatusEnum::Draft) {
+            throw new \DomainException("Cannot delete purchase #{$purchase->id} because it is not in 'draft' status.");
+        }
+
+        return $purchase->delete();
     }
 }

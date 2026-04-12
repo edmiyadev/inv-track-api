@@ -22,7 +22,7 @@ class SaleObserver
             : SaleStatusEnum::from($oldValue);
 
         // Inmutabilidad para ventas completadas
-        if ($oldStatus === SaleStatusEnum::Completed) {
+        if ($oldStatus === SaleStatusEnum::Posted) {
             throw new \DomainException(
                 "Sale #{$sale->id} is 'completed' and immutable."
             );
@@ -46,7 +46,7 @@ class SaleObserver
         $newStatus = $sale->status;
 
         // Si se completa la venta, crear el movimiento de inventario (SALIDA)
-        if ($newStatus === SaleStatusEnum::Completed) {
+        if ($newStatus === SaleStatusEnum::Posted) {
             $this->handleCompletion($sale);
         }
     }
@@ -82,7 +82,7 @@ class SaleObserver
 
     public function deleting(Sale $sale): void
     {
-        if ($sale->status === SaleStatusEnum::Completed) {
+        if ($sale->status === SaleStatusEnum::Posted) {
             throw new \DomainException("Cannot delete a 'completed' sale.");
         }
     }

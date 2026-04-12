@@ -9,7 +9,7 @@ enum SaleStatusEnum: string
     use EnumTrait;
 
     case Draft = 'draft';
-    case Completed = 'completed';
+    case Posted = 'posted';
     case Canceled = 'canceled';
 
     /**
@@ -18,8 +18,8 @@ enum SaleStatusEnum: string
     public function canTransitionTo(self $targetStatus): bool
     {
         return match ($this) {
-            self::Draft => in_array($targetStatus, [self::Completed, self::Canceled]),
-            self::Completed => false, // Final state: immutable once completed
+            self::Draft => in_array($targetStatus, [self::Posted, self::Canceled]),
+            self::Posted => false, // Final state: immutable once posted
             self::Canceled => false, // Terminal state
         };
     }
@@ -30,8 +30,8 @@ enum SaleStatusEnum: string
     public function validTransitions(): array
     {
         return match ($this) {
-            self::Draft => [self::Completed, self::Canceled],
-            self::Completed => [],
+            self::Draft => [self::Posted, self::Canceled],
+            self::Posted => [],
             self::Canceled => [],
         };
     }
