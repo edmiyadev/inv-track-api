@@ -20,4 +20,6 @@ RUN composer install --no-dev --optimize-autoloader
 # Permisos seguros para Laravel
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 USER www-data
-CMD ["php-fpm"]
+# CMD ["php-fpm"]
+# Cambia esto en tu Dockerfile dentro de Easypanel
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
