@@ -18,10 +18,11 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
         $this->call([
             RolesAndPermissionsSeeder::class,
-            SupplierSeeder::class,
-            ProductCategorySeeder::class,
-            ProductSeeder::class,
-            WarehouseSeeder::class,
+            // SupplierSeeder::class,
+            // ProductCategorySeeder::class,
+            // ProductSeeder::class,
+            // WarehouseSeeder::class,
+            ComputerAccessoriesSeeder::class,
         ]);
 
         $superAdminUser = User::firstOrCreate(
