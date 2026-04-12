@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Enums\PurchaseStatusEnum;
 use App\Interfaces\PurchaseServiceInterface;
 use App\Models\Purchase;
-use App\Models\PurchaseItem;
 use App\Models\Product;
 use App\Models\Tax;
 use Illuminate\Support\Facades\DB;
@@ -131,5 +130,14 @@ class PurchaseService implements PurchaseServiceInterface
         }
 
         return $purchase->delete();
+    }
+
+    public function updatePurchaseStatus(Purchase $purchase, string $status): ?Purchase
+    {
+        return DB::transaction(function () use ($purchase, $status) {
+            $purchase->update(['status' => $status]);
+
+            return $purchase->load(['items.product', 'supplier', 'warehouse']);
+        });
     }
 }

@@ -47,6 +47,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
     Route::apiResource('purchases', PurchaseController::class);
+    Route::patch('purchases/{id}/status', [PurchaseController::class, 'updateStatus']);
     Route::apiResource('suppliers', SupplierController::class);
     Route::apiResource('products', ProductController::class);
     Route::apiResource('categories', ProductCategoryController::class);

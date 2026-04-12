@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePurchaseRequest;
 use App\Http\Requests\UpdatePurchaseRequest;
+use App\Http\Requests\UpdatePurchaseStatusRequest;
 use App\Interfaces\PurchaseServiceInterface;
 use App\Models\Purchase;
 use App\Traits\Authorizes;
@@ -127,6 +128,32 @@ class PurchaseController extends Controller
         return response([
             'status' => 'success',
             'message' => 'Purchase deleted successfully',
+        ]);
+    }
+
+    public function updateStatus(UpdatePurchaseStatusRequest $request, int|string $purchaseId)
+    {
+        $purchase = $this->purchaseService->getPurchaseById($purchaseId);
+        $this->authorize('update', $purchase);
+
+        if (! $purchase) {
+            return response([
+                'status' => 'error',
+                'message' => 'Purchase not found',
+            ], 404);
+        }
+
+        if (! $this->purchaseService->updatePurchaseStatus($purchase, $request->validated()['status'])) {
+            return response([
+                'status' => 'error',
+                'message' => 'Error updating purchase status',
+            ], 500);
+        }
+
+        return response([
+            'status' => 'success',
+            'message' => 'Purchase status updated successfully',
+            'data' => $this->purchaseService->getPurchaseById($purchaseId),
         ]);
     }
 }

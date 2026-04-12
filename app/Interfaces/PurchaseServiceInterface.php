@@ -15,4 +15,6 @@ interface PurchaseServiceInterface
     public function updatePurchase(Purchase $purchase, array $data): ?Purchase;
 
     public function deletePurchase(Purchase $purchase): bool;
+
+    public function updatePurchaseStatus(Purchase $purchase, string $status): ?Purchase;
 }

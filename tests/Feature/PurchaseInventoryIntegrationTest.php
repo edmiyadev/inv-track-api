@@ -157,3 +157,18 @@ test('a draft purchase can be canceled without creating inventory movement', fun
     
     expect($movements)->toBe(0);
 });
+
+test('a canceled purchase can be transitioned back to draft', function () {
+    $purchase = Purchase::create([
+        'supplier_id' => Supplier::factory()->create()->id,
+        'warehouse_id' => Warehouse::factory()->create()->id,
+        'status' => PurchaseStatusEnum::Draft,
+        'total_amount' => 100.00,
+        'date' => now(),
+    ]);
+
+    $purchase->update(['status' => PurchaseStatusEnum::Canceled]);
+    $purchase->update(['status' => PurchaseStatusEnum::Draft]);
+
+    expect($purchase->fresh()->status)->toBe(PurchaseStatusEnum::Draft);
+});
