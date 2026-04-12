@@ -12,11 +12,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->statefulApi();
-        $middleware->validateCsrfTokens(except: [
-            'api/auth/login',
-            'api/auth/register',
-        ]);
+        // Using stateless Bearer token authentication — no CSRF or session middleware needed.
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
