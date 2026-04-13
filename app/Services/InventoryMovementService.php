@@ -176,6 +176,6 @@ class InventoryMovementService implements InventoryMovementServiceInterface
 
     public function listMovements(array $filters = [])
     {
-        return $this->inventoryMovement->with('items')->paginate(15);
+        return $this->inventoryMovement->with('items.product')->paginate(15);
     }
 }
