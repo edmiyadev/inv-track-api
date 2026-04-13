@@ -137,7 +137,7 @@ class SaleService implements SaleServiceInterface
          return DB::transaction(function () use ($sale, $status) {
             $sale->update(['status' => $status]);
 
-            return $sale->load(['items.product', 'supplier', 'warehouse']);
+            return $sale->load(['items.product', 'customer', 'warehouse', 'user', 'items.tax']);
         });
     }
 

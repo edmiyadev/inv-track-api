@@ -568,7 +568,21 @@ Los movimientos son la **ÚNICA manera** de modificar el stock. Existen 4 tipos:
 ```json
 {
   "status": "error",
-  "message": "Insufficient stock. Available: 15, Requested: 20"
+  "code": "STOCK_INSUFFICIENT",
+  "message": "No hay stock suficiente para completar la operación",
+  "errors": {
+    "items": [
+      {
+        "item_index": 0,
+        "product_id": 5,
+        "product_name": "Laptop Dell XPS 15",
+        "warehouse_id": 1,
+        "available": 15,
+        "requested": 20,
+        "missing": 5
+      }
+    ]
+  }
 }
 ```
 
