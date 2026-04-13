@@ -31,7 +31,7 @@ class InventoryMovementService implements InventoryMovementServiceInterface
      *
      * @throws \Exception If transaction fails or stock validation fails
      */
-    public function createMovement(array $data): InventoryMovement
+    public function createMovement(array $data): InventoryMovement | null
     {
         try {
             $movement = null;
@@ -147,7 +147,7 @@ class InventoryMovementService implements InventoryMovementServiceInterface
             'document_type' => $originalMovement->document_type,
             'movement_type' => $reversalType,
             'notes' => "Reversal of movement #{$originalMovement->id}",
-            'items' => $originalMovement->items->map(fn ($item) => [
+            'items' => $originalMovement->items->map(fn($item) => [
                 'product_id' => $item->product_id,
                 'quantity' => $item->quantity,
                 'unit_price' => $item->unit_price,
