@@ -25,7 +25,7 @@ class UpdateSupplierRequest extends FormRequest
             'name' => 'sometimes|required|string|max:255',
             'rnc' => 'sometimes|nullable|string|max:50|unique:suppliers,rnc,'.$this->route('supplier'),
             'phone_number' => 'sometimes|nullable|string|max:20',
-            'email' => 'sometimes|required|email',
+            'email' => 'sometimes|nullable|email',
             'address' => 'sometimes|nullable|string|max:500',
             'is_active' => 'sometimes|boolean',
         ];
