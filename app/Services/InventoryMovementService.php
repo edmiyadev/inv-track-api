@@ -3,8 +3,11 @@
 namespace App\Services;
 
 use App\Enums\MovementTypeEnum;
+use App\Exceptions\InsufficientStockException;
 use App\Interfaces\InventoryMovementServiceInterface;
+use App\Models\InventoryStock;
 use App\Models\InventoryMovement;
+use App\Models\Product;
 use Illuminate\Support\Facades\DB;
 
 class InventoryMovementService implements InventoryMovementServiceInterface
@@ -28,7 +31,7 @@ class InventoryMovementService implements InventoryMovementServiceInterface
      *
      * @throws \Exception If transaction fails or stock validation fails
      */
-    public function createMovement(array $data): InventoryMovement
+    public function createMovement(array $data): InventoryMovement | null
     {
         try {
             $movement = null;
@@ -36,6 +39,10 @@ class InventoryMovementService implements InventoryMovementServiceInterface
             DB::transaction(function () use ($data, &$movement) {
                 // Cast movement_type to enum if it's a string
                 $movementType = MovementTypeEnum::ensureEnum($data['movement_type']);
+
+                if (in_array($movementType, [MovementTypeEnum::Out, MovementTypeEnum::Transfer], true)) {
+                    $this->validateStockAvailability($data, $movementType);
+                }
 
                 // Step 1: Create movement record (audit trail)
                 $movement = $this->inventoryMovement->create([
@@ -46,7 +53,7 @@ class InventoryMovementService implements InventoryMovementServiceInterface
                 ]);
 
                 // Step 2: Create movement items and update stock
-                foreach ($data['items'] as $item) {
+                foreach ($data['items'] as $index => $item) {
                     $movement->items()->create([
                         'product_id' => $item['product_id'],
                         'quantity' => $item['quantity'],
@@ -59,7 +66,7 @@ class InventoryMovementService implements InventoryMovementServiceInterface
                         $item['product_id'],
                         $item['quantity'],
                         $movementType,
-                        $data
+                        array_merge($data, ['item_index' => $index])
                     );
                 }
             });
@@ -67,6 +74,50 @@ class InventoryMovementService implements InventoryMovementServiceInterface
             return $movement;
         } catch (\Throwable $th) {
             throw $th;
+        }
+    }
+
+    /**
+     * @throws InsufficientStockException
+     */
+    private function validateStockAvailability(array $data, MovementTypeEnum $movementType): void
+    {
+        $originWarehouseId = $movementType === MovementTypeEnum::Transfer
+            ? (int) $data['origin_warehouse_id']
+            : (int) ($data['origin_warehouse_id'] ?? 0);
+
+        if ($originWarehouseId <= 0) {
+            return;
+        }
+
+        $insufficientItems = [];
+
+        foreach ($data['items'] as $index => $item) {
+            $productId = (int) $item['product_id'];
+            $requested = (int) $item['quantity'];
+            $available = (int) InventoryStock::query()
+                ->where('warehouse_id', $originWarehouseId)
+                ->where('product_id', $productId)
+                ->lockForUpdate()
+                ->value('quantity');
+
+            if ($available >= $requested) {
+                continue;
+            }
+
+            $insufficientItems[] = [
+                'item_index' => $index,
+                'product_id' => $productId,
+                'product_name' => Product::where('id', $productId)->value('name'),
+                'warehouse_id' => $originWarehouseId,
+                'available' => $available,
+                'requested' => $requested,
+                'missing' => max(0, $requested - $available),
+            ];
+        }
+
+        if (! empty($insufficientItems)) {
+            throw InsufficientStockException::fromItems($insufficientItems);
         }
     }
 
@@ -96,7 +147,7 @@ class InventoryMovementService implements InventoryMovementServiceInterface
             'document_type' => $originalMovement->document_type,
             'movement_type' => $reversalType,
             'notes' => "Reversal of movement #{$originalMovement->id}",
-            'items' => $originalMovement->items->map(fn ($item) => [
+            'items' => $originalMovement->items->map(fn($item) => [
                 'product_id' => $item->product_id,
                 'quantity' => $item->quantity,
                 'unit_price' => $item->unit_price,
@@ -125,6 +176,6 @@ class InventoryMovementService implements InventoryMovementServiceInterface
 
     public function listMovements(array $filters = [])
     {
-        return $this->inventoryMovement->with('items')->paginate(15);
+        return $this->inventoryMovement->with('items.product')->paginate(15);
     }
 }

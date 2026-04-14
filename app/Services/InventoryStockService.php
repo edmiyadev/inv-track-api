@@ -3,8 +3,10 @@
 namespace App\Services;
 
 use App\Enums\MovementTypeEnum;
+use App\Exceptions\InsufficientStockException;
 use App\Interfaces\InventoryStockServiceInterface;
 use App\Models\InventoryStock;
+use App\Models\Product;
 
 class InventoryStockService implements InventoryStockServiceInterface
 {
@@ -23,11 +25,11 @@ class InventoryStockService implements InventoryStockServiceInterface
                 break;
 
             case MovementTypeEnum::Out:
-                $this->decrementStock($data['origin_warehouse_id'], $productId, $quantity);
+                $this->decrementStock($data['origin_warehouse_id'], $productId, $quantity, $data);
                 break;
 
             case MovementTypeEnum::Transfer:
-                $this->decrementStock($data['origin_warehouse_id'], $productId, $quantity);
+                $this->decrementStock($data['origin_warehouse_id'], $productId, $quantity, $data);
                 $this->incrementStock($data['destination_warehouse_id'], $productId, $quantity);
                 break;
 
@@ -36,7 +38,7 @@ class InventoryStockService implements InventoryStockServiceInterface
                 if ($quantity >= 0) {
                     $this->incrementStock($data['destination_warehouse_id'], $productId, abs($quantity));
                 } else {
-                    $this->decrementStock($data['destination_warehouse_id'], $productId, abs($quantity));
+                    $this->decrementStock($data['destination_warehouse_id'], $productId, abs($quantity), $data);
                 }
                 break;
 
@@ -70,16 +72,35 @@ class InventoryStockService implements InventoryStockServiceInterface
         $stock->increment('quantity', $quantity);
     }
 
-    private function decrementStock(int $warehouseId, int $productId, int $quantity)
+    private function decrementStock(int $warehouseId, int $productId, int $quantity, array $data = []): void
     {
-        $stock = InventoryStock::firstOrCreate(
-            ['warehouse_id' => $warehouseId, 'product_id' => $productId],
-            ['quantity' => 0, 'reorder_point' => 10]
-        );
+        $stock = InventoryStock::where('warehouse_id', $warehouseId)
+            ->where('product_id', $productId)
+            ->lockForUpdate()
+            ->first();
+
+        if (! $stock) {
+            $stock = InventoryStock::create([
+                'warehouse_id' => $warehouseId,
+                'product_id' => $productId,
+                'quantity' => 0,
+                'reorder_point' => 10,
+            ]);
+        }
 
         // Validar que no quede negativo
         if ($stock->quantity < $quantity) {
-            throw new \Exception("Insufficient stock. Available: {$stock->quantity}, Requested: {$quantity}");
+            $productName = Product::where('id', $productId)->value('name');
+            $itemIndex = isset($data['item_index']) ? (int) $data['item_index'] : null;
+
+            throw InsufficientStockException::fromData(
+                productId: $productId,
+                productName: $productName,
+                warehouseId: $warehouseId,
+                available: (int) $stock->quantity,
+                requested: $quantity,
+                itemIndex: $itemIndex,
+            );
         }
 
         $stock->decrement('quantity', $quantity);

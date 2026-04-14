@@ -6,7 +6,7 @@ use App\Models\InventoryMovement;
 
 interface InventoryMovementServiceInterface
 {
-    public function createMovement(array $data): InventoryMovement;
+    public function createMovement(array $data): InventoryMovement | null;
 
     public function createReversalMovement(InventoryMovement $originalMovement): InventoryMovement;
 

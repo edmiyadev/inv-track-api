@@ -2,11 +2,12 @@
 
 namespace App\Interfaces;
 
+use App\Enums\MovementTypeEnum;
 use App\Models\InventoryStock;
 
 interface InventoryStockServiceInterface
 {
-    public function adjustStock(int $productId, int $quantity, string $movementType, array $data): void;
+    public function adjustStock(int $productId, int $quantity, MovementTypeEnum|string $movementType, array $data): void;
 
     public function listStocks(array $filters = []): array;
 
