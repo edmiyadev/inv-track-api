@@ -9,7 +9,7 @@ class SupplierService implements SupplierServiceInterface
 {
     public function getAllSuppliers()
     {
-        return Supplier::orderBy('created_at', 'asc')->paginate(request()->per_page ?? 10);
+        return Supplier::orderBy('created_at', 'desc')->paginate(request()->per_page ?? 10);
     }
 
     public function getSupplierById(int|string $id)

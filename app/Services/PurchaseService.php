@@ -15,7 +15,7 @@ class PurchaseService implements PurchaseServiceInterface
 
     public function getAllPurchases()
     {
-        return $this->purchase->with(['supplier', 'warehouse'])->get();
+        return $this->purchase->with(['supplier', 'warehouse'])->orderBy('created_at', 'desc')->paginate(request()->per_page ?? 10);
     }
 
     public function getPurchaseById(int|string $purchaseId): ?Purchase
